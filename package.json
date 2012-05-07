@@ -1,0 +1,17 @@
+{
+    "name": "mydb"
+  , "version": "0.1.0"
+  , "main": "./lib/mydb"
+  , "dependencies": {
+        "redis": "0.7.x"
+      , "socket.io": "0.9.x"
+      , "monk": "0.1.x"
+      , "debug": "0.6.x"
+    }
+  , "devDependencies": {
+        "mydb-client": "0.1.0"
+      , "express": "2.5.x"
+      , "mocha": "*"
+      , "expect.js": "*"
+    }
+}
