@@ -53,7 +53,7 @@ mydb('/demo', function (doc, ops) {
   doc.colors.forEach(function (color) {
     add(color, 'gray');
   });
-  ops.on('colors', '$push', function () {
+  ops.on('colors', 'push', function () {
     add(color, 'yellow');
   });
   document.getElementById('test').onclick = function () {
