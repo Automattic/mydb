@@ -49,11 +49,11 @@ function add (color, bg) {
   li.style.backgroundColor = bg;
   return li;
 }
-mydb('/demo', function (doc, conn) {
+mydb('/demo', function (doc, ops) {
   doc.colors.forEach(function (color) {
     add(color, 'gray');
   });
-  doc.ops.on('colors', '$push', function () {
+  ops.on('colors', '$push', function () {
     add(color, 'yellow');
   });
   document.getElementById('test').onclick = function () {
