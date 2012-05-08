@@ -52,7 +52,7 @@ describe('mydb', function () {
 
         cl('/', function (doc, ops) {
           expect(doc.nice).to.be('try');
-          col.updateById(doc._id, { $set: { nice: 'try' } });
+          col.updateById(doc._id, { $set: { nice: 'tries' } });
           ops.on('nice', function (v) {
             expect(v).to.equal('tries');
             expect(doc.nice).to.equal('tries');
