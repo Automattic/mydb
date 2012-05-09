@@ -80,12 +80,14 @@ describe('mydb', function () {
           expect(doc.nice).to.be('try');
           col.updateById(doc._id, { $push: { items: 'try' } });
           ops.once('items', 'push', function (v) {
-            expect(v.items).to.be.an('array');
-            expect(v.items[0]).to.be('try');
+            expect(v).to.be('try');
+            expect(doc.items).to.be.an('array');
+            expect(doc.items[0]).to.be('try');
 
             col.updateById(doc._id, { $push: { items: 'try 2' } });
             ops.once('items', 'push', function (v) {
-              expect(v.items[1]).to.be('try');
+              expect(v).to.be('try 2');
+              expect(doc.items[1]).to.be('try 2');
               done();
             });
           });
