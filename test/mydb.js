@@ -35,6 +35,27 @@ describe('mydb', function () {
         });
       });
     });
+
+    it('doc proxy method', function (done) {
+      var app = express.createServer()
+        , db = mydb(app, 'localhost/mydb')
+
+      // random col
+      var col = db.get('mydb-' + Date.now())
+
+      app.listen(7000, function () {
+        var cl = client('http://localhost:7000/mydb');
+
+        db('/', function (conn, expose) {
+          expose(col.insert({ nice: 'try' }));
+        });
+
+        cl.doc('/', function (doc) {
+          expect(doc.nice).to.be('try');
+          done();
+        });
+      });
+    });
   });
 
   describe('document', function () {
