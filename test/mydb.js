@@ -14,23 +14,25 @@ var mydb = require('../lib/mydb')
 
 describe('mydb', function () {
 
-  it('initializing mydb', function (done) {
-    var app = express.createServer()
-      , db = mydb(app, 'localhost/mydb')
+  describe('manager', function () {
+    it('initialization', function (done) {
+      var app = express.createServer()
+        , db = mydb(app, 'localhost/mydb')
 
-    // random col
-    var col = db.get('mydb-' + Date.now())
+      // random col
+      var col = db.get('mydb-' + Date.now())
 
-    app.listen(5000, function () {
-      var cl = client('http://localhost:5000/mydb');
+      app.listen(5000, function () {
+        var cl = client('http://localhost:5000/mydb');
 
-      db('/', function (conn, expose) {
-        expose(col.insert({ nice: 'try' }));
-      });
+        db('/', function (conn, expose) {
+          expose(col.insert({ nice: 'try' }));
+        });
 
-      cl('/', function (doc) {
-        expect(doc.nice).to.be('try');
-        done();
+        cl('/', function (doc) {
+          expect(doc.nice).to.be('try');
+          done();
+        });
       });
     });
   });
