@@ -94,6 +94,32 @@ describe('mydb', function () {
         });
       });
     });
+
+    it('inc', function (done) {
+      var app = express.createServer()
+        , db = mydb(app, 'localhost/mydb')
+
+      // random col
+      var col = db.get('mydb-' + Date.now())
+
+      app.listen(5003, function () {
+        var cl = client('http://localhost:5003/mydb');
+
+        db('/', function (conn, expose) {
+          expose(col.insert({ count: 4 }));
+        });
+
+        cl('/', function (doc, ops) {
+          expect(doc.count).to.be(4);
+          col.updateById(doc._id, { $inc: { count: 1 } });
+          ops.once('count', 'inc', function (v) {
+            expect(v).to.be(1);
+            expect(doc.count).to.be(5);
+            done();
+          });
+        });
+      });
+    });
   });
 
 });
