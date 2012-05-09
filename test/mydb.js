@@ -120,6 +120,33 @@ describe('mydb', function () {
         });
       });
     });
+
+    it('unset', function (done) {
+      var app = express.createServer()
+        , db = mydb(app, 'localhost/mydb')
+
+      // random col
+      var col = db.get('mydb-' + Date.now())
+
+      app.listen(5004, function () {
+        var cl = client('http://localhost:5004/mydb');
+
+        db('/', function (conn, expose) {
+          expose(col.insert({ a: 'b', c: 'd' }));
+        });
+
+        cl('/', function (doc, ops) {
+          expect(doc.a).to.be('b');
+          expect(doc.c).to.be('d');
+          col.updateById(doc._id, { $unset: { c: 1 } });
+          ops.once('c', 'unset', function () {
+            expect(doc.a).to.be('b');
+            expect(doc.c).to.be(undefined);
+            done();
+          });
+        });
+      });
+    });
   });
 
 });
