@@ -35,6 +35,33 @@ describe('mydb', function () {
     });
   });
 
+  describe('document', function () {
+    it('operation event', function (done) {
+      var app = express.createServer()
+        , db = mydb(app, 'localhost/mydb')
+
+      // random col
+      var col = db.get('mydb-' + Date.now())
+
+      app.listen(6001, function () {
+        var cl = client('http://localhost:6001/mydb');
+
+        db('/', function (conn, expose) {
+          expose(col.insert({ nice: 'try' }));
+        });
+
+        var docu = cl('/', function (doc, ops) {
+          expect(doc.nice).to.be('try');
+          col.updateById(doc._id, { $set: { nice: 'tries' } });
+          docu.once('op', function (op) {
+            expect(op.$set).to.eql({ nice: 'tries' });
+            done();
+          });
+        });
+      });
+    });
+  });
+
   describe('operations', function () {
     it('set', function (done) {
       var app = express.createServer()
