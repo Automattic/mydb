@@ -197,6 +197,47 @@ describe('mydb', function () {
         });
       });
     });
+
+    it('pushAll', function (done) {
+      var app = express.createServer()
+        , db = mydb(app, 'localhost/mydb')
+
+      // random col
+      var col = db.get('mydb-' + Date.now())
+
+      app.listen(5005, function () {
+        var cl = client('http://localhost:5005/mydb');
+
+        db('/', function (conn, expose) {
+          expose(col.insert({ ferrets: ['a', 'b', 'c'] }));
+        });
+
+        cl('/', function (doc, ops) {
+          expect(doc.ferrets).to.eql(['a', 'b', 'c']);
+          col.updateById(doc._id, { $pushAll: { ferrets: ['d', 'e'] } });
+
+          // push all gets expressed in the client as multiple pushes
+          var total = 0;
+          ops.on('ferrets', 'push', function (v) {
+            switch (++total) {
+              case 1:
+                expect(v).to.be('d');
+                expect(doc.ferrets).to.eql(['a', 'b', 'c', 'd']);
+                break;
+
+              case 2:
+                expect(v).to.be('e');
+                expect(doc.ferrets).to.eql(['a', 'b', 'c', 'd', 'e']);
+                done();
+                break;
+
+              default:
+                done(new Error('Unexpected'));
+            }
+          });
+        });
+      });
+    });
   });
 
 });
