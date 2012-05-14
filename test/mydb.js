@@ -238,6 +238,69 @@ describe('mydb', function () {
         });
       });
     });
+
+    it('addToSet', function (done) {
+      var app = express.createServer()
+        , db = mydb(app, 'localhost/mydb')
+
+      // random col
+      var col = db.get('mydb-' + Date.now())
+
+      app.listen(5006, function () {
+        var cl = client('http://localhost:5006/mydb');
+
+        db('/', function (conn, expose) {
+          expose(col.insert({ set: ['a', 'b', 'c'] }));
+        });
+
+        var docu = cl('/', function (doc, ops) {
+          col.updateById(doc._id, { $addToSet: { set: 'd' } });
+          ops.once('set', 'push', function () {
+            expect(doc.set).to.contain('d');
+            col.updateById(doc._id, { $addToSet: { set: 'd' } });
+
+            var ignorePush = false;
+
+            ops.once('set', 'push', function () {
+              if (!ignorePush) {
+                done(new Error('Unexpected push event'));
+              }
+            });
+
+            docu.once('noop', function (v) {
+              expect(v.$addToSet).to.eql({ set: 'd' });
+
+              process.nextTick(function () {
+                // prevent check from triggering for subsequent ops
+                ignorePush = true;
+
+                col.updateById(doc._id, { $addToSet: {
+                  set: { $each: ['e', 'b', 'f'] } }
+                });
+
+                var total = 0;
+
+                ops.on('set', 'push', function (v) {
+                  switch (++total) {
+                    case 1:
+                      expect(v).to.equal('e');
+                      break;
+
+                    case 2:
+                      expect(v).to.equal('f');
+                      done();
+                      break;
+
+                    default:
+                      done(new Error('Unexpected push event'));
+                  }
+                });
+              });
+            });
+          });
+        });
+      });
+    });
   });
 
 });
