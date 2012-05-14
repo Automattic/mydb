@@ -145,6 +145,31 @@ describe('mydb', function () {
       });
     });
 
+    it('push (unset)', function (done) {
+      var app = express.createServer()
+        , db = mydb(app, 'localhost/mydb')
+
+      var col = db.get('mydb-' + Date.now());
+
+      app.listen(8000, function () {
+        var cl = client('http://localhost:8000/mydb');
+
+        db('/', function (conn, expose) {
+          expose(col.insert({}));
+        });
+
+        cl('/', function (doc, ops) {
+          col.update({ _id: doc._id }, { $push: { unknown: 'test' } });
+          ops.once('unknown', 'push', function (v) {
+            expect(v).to.equal('test');
+            expect(doc.unknown).to.be.an('array');
+            expect(doc.unknown).to.eql(['test']);
+            done();
+          });
+        });
+      });
+    });
+
     it('inc', function (done) {
       var app = express.createServer()
         , db = mydb(app, 'localhost/mydb')
