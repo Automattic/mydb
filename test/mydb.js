@@ -326,6 +326,52 @@ describe('mydb', function () {
         });
       });
     });
+
+    it('addToSet (unset)', function (done) { 
+      var app = express.createServer()
+        , db = mydb(app, 'localhost/mydb')
+
+      // random col
+      var col = db.get('mydb-' + Date.now())
+
+      app.listen(5007, function () {
+        var cl = client('http://localhost:5007/mydb');
+
+        db('/', function (conn, expose) {
+          expose(col.insert({}));
+        });
+
+        cl('/', function (doc, ops) {
+          col.updateById(doc._id, { $addToSet: { a: 'b' } });
+          ops.on('a', 'push', function (v) {
+            expect(v).to.be('b');
+            expect(doc.a).to.be.an('array');
+            expect(doc.a).to.eql(['b']);
+
+            col.updateById(doc._id, { $addToSet: { b: { $each: [1, 2] } } });
+
+            var total = 0;
+
+            ops.on('b', 'push', function (v) {
+              switch (++total) {
+                case 1:
+                  expect(v).to.be(1);
+                  expect(doc.b).to.be.an('array');
+                  expect(doc.b).to.eql([1]);
+                  break;
+
+                case 2:
+                  expect(v).to.be(2);
+                  expect(doc.b).to.be.an('array');
+                  expect(doc.b).to.eql([1, 2]);
+                  done();
+                  break;
+              }
+            });
+          });
+        });
+      });
+    });
   });
 
 });
