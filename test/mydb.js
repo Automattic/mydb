@@ -445,10 +445,58 @@ describe('mydb', function () {
             switch (++total) {
               case 1:
                 expect(v).to.eql({ type: 'ferret', name: 'tobi' });
+                expect(doc.animals).to.eql([
+                    { type: 'dog', name: 'raul' }
+                  , { type: 'ferret', name: 'locki' }
+                ]);
                 break;
 
               case 2:
                 expect(v).to.eql({ type: 'ferret', name: 'locki' });
+                expect(doc.animals).to.eql([
+                  { type: 'dog', name: 'raul' }
+                ]);
+                done();
+                break;
+            }
+          });
+        });
+      });
+    });
+
+    it('pullAll', function (done) {
+      var app = express.createServer()
+        , db = mydb(app, 'localhost/mydb')
+
+      // random col
+      var col = db.get('mydb-' + Date.now())
+
+      app.listen(5009, function () {
+        var cl = client('http://localhost:5009/mydb');
+
+        db('/', function (conn, expose) {
+          expose(col.insert({ numbers: [1, 2, 3, 1] }));
+        });
+
+        cl('/', function (doc, ops) {
+          expect(doc.numbers).to.eql([1, 2, 3, 1]);
+          col.updateById(doc._id, { $pullAll: { numbers: [1, 3] } });
+          var total = 0
+          ops.on('numbers', 'pull', function (v) {
+            switch (++total) {
+              case 1:
+                expect(v).to.eql(1);
+                expect(doc.numbers).to.eql([2, 3, 1]);
+                break;
+
+              case 2:
+                expect(v).to.eql(3);
+                expect(doc.numbers).to.eql([2, 1]);
+                break;
+
+              case 3:
+                expect(v).to.eql(1);
+                expect(doc.numbers).to.eql([2]);
                 done();
                 break;
             }
