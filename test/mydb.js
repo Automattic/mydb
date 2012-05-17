@@ -536,6 +536,38 @@ describe('mydb', function () {
         });
       });
     });
+
+    it('rename', function (done) {
+      var app = express.createServer()
+        , db = mydb(app, 'localhost/mydb')
+
+      // random col
+      var col = db.get('mydb-' + Date.now())
+
+      app.listen(5011, function () {
+        var cl = client('http://localhost:5011/mydb');
+
+        db('/', function (conn, expose) {
+          expose(col.insert({ a: { b: 'c' } }));
+        });
+
+        cl('/', function (doc, ops) {
+          expect(doc.a).to.eql({ b: 'c' });
+          col.updateById(doc._id, { $rename: { a: 'c' } });
+          var unset = false;
+          ops.on('a', 'unset', function () {
+            unset = true;
+          });
+          ops.on('c', function (v) {
+            expect(unset).to.be(true);
+            expect(v).to.eql({ b: 'c' });
+            expect(doc.a).to.be(undefined);
+            expect(doc.c).to.eql({ b: 'c' });
+            done();
+          });
+        });
+      });
+    });
   });
 
 });
