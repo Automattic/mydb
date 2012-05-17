@@ -414,6 +414,48 @@ describe('mydb', function () {
         });
       });
     });
+
+    it('pull', function (done) {
+      var app = express.createServer()
+        , db = mydb(app, 'localhost/mydb')
+
+      // random col
+      var col = db.get('mydb-' + Date.now())
+
+      app.listen(5008, function () {
+        var cl = client('http://localhost:5008/mydb');
+
+        db('/', function (conn, expose) {
+          expose(col.insert({ animals: [
+              { type: 'ferret', name: 'tobi' }
+            , { type: 'dog', name: 'raul' }
+            , { type: 'ferret', name: 'locki' }
+          ]}));
+        });
+
+        cl('/', function (doc, ops) {
+          expect(doc.animals).to.eql([
+              { type: 'ferret', name: 'tobi' }
+            , { type: 'dog', name: 'raul' }
+            , { type: 'ferret', name: 'locki' }
+          ]);
+          col.updateById(doc._id, { $pull: { animals: { type: 'ferret' } } });
+          var total = 0
+          ops.on('animals', 'pull', function (v) {
+            switch (++total) {
+              case 1:
+                expect(v).to.eql({ type: 'ferret', name: 'tobi' });
+                break;
+
+              case 2:
+                expect(v).to.eql({ type: 'ferret', name: 'locki' });
+                done();
+                break;
+            }
+          });
+        });
+      });
+    });
   });
 
 });
