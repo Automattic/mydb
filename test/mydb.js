@@ -369,7 +369,7 @@ describe('mydb', function () {
       });
     });
 
-    it('addToSet (unset)', function (done) { 
+    it('addToSet (unset)', function (done) {
       var app = express.createServer()
         , db = mydb(app, 'localhost/mydb')
 
