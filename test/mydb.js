@@ -504,6 +504,38 @@ describe('mydb', function () {
         });
       });
     });
+
+    it('pop', function (done) {
+      var app = express.createServer()
+        , db = mydb(app, 'localhost/mydb')
+
+      // random col
+      var col = db.get('mydb-' + Date.now())
+
+      app.listen(5010, function () {
+        var cl = client('http://localhost:5010/mydb');
+
+        db('/', function (conn, expose) {
+          expose(col.insert({ numbers: [1, 2, 3, 4, 5] }));
+        });
+
+        cl('/', function (doc, ops) {
+          expect(doc.numbers).to.eql([1, 2, 3, 4, 5]);
+          col.updateById(doc._id, { $pop: { numbers: 1 } });
+          ops.once('numbers', 'pull', function (v) {
+            expect(v).to.be(5);
+            expect(doc.numbers).to.eql([1, 2, 3, 4]);
+
+            col.updateById(doc._id, { $pop: { numbers: -1 } });
+            ops.once('numbers', 'pull', function (v) {
+              expect(v).to.be(1);
+              expect(doc.numbers).to.eql([2, 3, 4]);
+              done();
+            });
+          });
+        });
+      });
+    });
   });
 
 });
