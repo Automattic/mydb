@@ -58,6 +58,39 @@ describe('mydb', function () {
     });
   });
 
+  describe('exposing', function () {
+    it('hex string and collection', function (done) {
+      var app = express.createServer()
+        , db = mydb(app, 'localhost/mydb')
+
+      // random col
+      var colName = 'mydb-' + Date.now()
+        , col = db.get(colName)
+
+      app.listen(9001, function () {
+        var cl = client('http://localhost:9001/mydb')
+          , id
+
+        db('/', function (conn, expose) {
+          col.insert({ tobi: 'woot' }, function (err, doc) {
+            id = doc._id.toString();
+            expose(colName, id);
+          });
+        });
+
+        cl('/', function (doc, ops) {
+          expect(doc.tobi).to.eql('woot');
+          col.updateById(id, { $set: { tobi: 'test' } });
+          ops.on('tobi', function (v) {
+            console.log(v);
+            expect(v).to.be('test');
+            done();
+          });
+        });
+      });
+    });
+  });
+
   describe('document', function () {
     it('operation event', function (done) {
       var app = express.createServer()
