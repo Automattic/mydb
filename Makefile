@@ -7,6 +7,7 @@ test:
 	@$(MOCHA) \
 		--reporter $(REPORTER) \
 		--slow 100ms \
+		--bail \
 		$(TESTS)
 
 .PHONY: test
