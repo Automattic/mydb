@@ -143,6 +143,29 @@ describe('mydb', function () {
         });
       });
     });
+
+    it('insert promise', function (done) {
+      var app = express.createServer()
+        , db = mydb(app, 'localhost/mydb')
+
+      // random col
+      var colName = 'mydb-' + Date.now()
+        , col = db.get(colName)
+
+      app.listen(9004, function () {
+        var cl = client('http://localhost:9004/mydb')
+          , id
+
+        db('/', function (conn, expose) {
+          expose(col.insert({ expose: 'insert' }));
+        });
+
+        cl('/', function (doc, ops) {
+          expect(doc.expose).to.eql('insert');
+          done();
+        });
+      });
+    });
   });
 
   describe('document', function () {
