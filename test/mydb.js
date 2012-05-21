@@ -89,6 +89,34 @@ describe('mydb', function () {
         });
       });
     });
+
+    it('findAndModify upsert', function (done) {
+      var app = express.createServer()
+        , db = mydb(app, 'localhost/mydb')
+
+      // random col
+      var colName = 'mydb-' + Date.now()
+        , col = db.get(colName)
+
+      app.listen(9002, function () {
+        var cl = client('http://localhost:9002/mydb')
+          , id
+
+        db('/', function (conn, expose) {
+          var d = col.findAndModify({ test: 'fam' }, { test: 'fam' }, { upsert: true });
+          expose(d);
+        });
+
+        cl('/', function (doc, ops) {
+          expect(doc.test).to.eql('fam');
+          col.findById(doc._id, function (err, d) {
+            expect(err).to.be(null);
+            expect(d.test).to.be('fam');
+            done();
+          });
+        });
+      });
+    });
   });
 
   describe('document', function () {
