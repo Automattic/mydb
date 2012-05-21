@@ -117,6 +117,32 @@ describe('mydb', function () {
         });
       });
     });
+
+    it('findOne promise', function (done) {
+      var app = express.createServer()
+        , db = mydb(app, 'localhost/mydb')
+
+      // random col
+      var colName = 'mydb-' + Date.now()
+        , col = db.get(colName)
+
+      app.listen(9003, function () {
+        var cl = client('http://localhost:9003/mydb')
+          , id
+
+        db('/', function (conn, expose) {
+          col.insert({ expose: 'findOne' }, function (err, doc) {
+            expect(err).to.be(null);
+            expose(col.findOne({ _id: doc._id }));
+          });
+        });
+
+        cl('/', function (doc, ops) {
+          expect(doc.expose).to.eql('findOne');
+          done();
+        });
+      });
+    });
   });
 
   describe('document', function () {
