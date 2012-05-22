@@ -1,0 +1,6 @@
+
+body { padding: 40px; }
+#todo { width: 300px; margin: auto; }
+form { background: #eee; padding: 10px 10px 0; }
+form input[type=text] { display: inline-block; margin-right: 10px; width: 196px; }
+p.permalink { background: #ffffaa; font-size: 12px; padding: 10px; }

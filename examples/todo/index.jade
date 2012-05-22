@@ -1,0 +1,22 @@
+
+doctype 5
+html
+  head
+    title TODO example
+    link(rel="stylesheet", href="/css/skeleton.css")
+    link(rel="stylesheet", href="/css/main.css")
+  body
+    #todo
+      h2 TODO
+      ul#list
+      p#wait Please wait…
+      h3 Add a new one
+      form(action="create", method="post")
+        label Item description
+        input(type="text")
+        button Submit
+    script(src="/js/jquery-1.7.2.js")
+    script(src="/socket.io/socket.io.js")
+    script(src="/js/superagent.js")
+    script(src="/js/mydb-dev.js")
+    script(src="/js/main.js")

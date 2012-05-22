@@ -1,0 +1,11 @@
+{
+    "name": "mydb-colors"
+  , "version": "0.1.0"
+  , "dependencies": {
+        "mydb": "~0.1.0"
+      , "mydb-client": "~0.1.0"
+      , "express": "3.0.x"
+      , "superagent": "~0.4.1"
+      , "jade": "0.24.0"
+    }
+}
