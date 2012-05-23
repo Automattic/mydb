@@ -51,6 +51,9 @@ var todo = doc(path, function (obj, ops) {
   ops.on('items', 'push', item);
   ops.on('items', 'pull', function (obj) {
     $('#item-' + obj._id).remove();
+    if (!$('#list li').length && !$('p#wait').length) {
+      $('ul').after('<p id="none">No items.</p>')
+    }
   });
 });
 
