@@ -680,4 +680,46 @@ describe('mydb', function () {
     });
   });
 
+  describe('multiple documents over a same socket', function () {
+    it('should receive isolated events', function (done) {
+      var app = express.createServer()
+        , db = mydb(app, 'localhost/mydb')
+
+      // random col
+      var col = db.get('mydb-' + Date.now())
+
+      app.listen(11000, function () {
+        var cl = client('http://localhost:11000/mydb');
+
+        db('/a', function (conn, expose) {
+          expose(col.insert({ multiple: 'a' }));
+        });
+
+        db('/b', function (conn, expose) {
+          expose(col.insert({ multiple: 'b' }));
+        });
+
+        var total = 2;
+
+        cl('/a', function (doc, ops) {
+          expect(doc.multiple).to.be('a');
+          ops.on('multiple', function (v) {
+            expect(v).to.be('aa');
+            --total || done();
+          });
+          col.updateById(doc._id, { $set: { multiple: 'aa' } });
+        });
+
+        cl('/b', function (doc, ops) {
+          expect(doc.multiple).to.be('b');
+          ops.on('multiple', function (v) {
+            expect(v).to.be('bb');
+            --total || done();
+          });
+          col.updateById(doc._id, { $set: { multiple: 'bb' } });
+        });
+      });
+    });
+  });
+
 });
