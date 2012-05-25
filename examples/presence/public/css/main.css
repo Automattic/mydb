@@ -1,0 +1,28 @@
+
+body { padding: 40px; }
+#presence { width: 380px; margin: auto; }
+
+.connections { background: lime; border-radius: 12px; font-size: 12px; font-weight: bold; color: #fff; padding: 2px 6px; margin-left: 5px; position: relative; top: 2px; }
+
+#user { background: #eee; padding: 5px; border: 1px solid #ccc; padding-left: 60px; position: relative; }
+#user img { position: absolute; left: 5px; }
+#user .name { vertical-align: middle; font: 20px/28px Helvetica Neue; }
+#user .bio { display: block; font-size: 12px; color: #666; }
+#user a { font-size: 11px; }
+#user form { margin: 0; }
+#user form textarea { display: block; margin: 0 0 5px; min-height: 30px; }
+#user form button { display: inline-block; margin: 0 5px 0 0; }
+#user form { display: none; }
+#user.edit form { display: block; }
+#user.edit .bio, #user.edit a.edit { display: none; }
+
+#users div { padding: 5px; background: #fafafa; border: 1px solid #ccc; border-top-width: 0; font-size: 12px; padding-left: 36px; position: relative; }
+#users div img { width: 24px; position: absolute; left: 5px; }
+#users div .connections { font-size: 10px; padding: 1px 4px; position: relative; top: 0; display: none; }
+#users div .bio { display: block; font-size: 11px; }
+#users div::after { display: inline-block; background: red; width: 8px; height: 8px; content: " "; position: absolute; top: 10px; right: 5px; border-radius: 8px; }
+#users div.connected::after { background: lime; }
+#users div.connected .connections { display: inline; }
+
+.highlight-target { background-color: #ffefc6; }
+.highlight { background-color: transparent; -webkit-transition: background-color ease-in 300ms; }

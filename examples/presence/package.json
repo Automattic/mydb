@@ -1,0 +1,14 @@
+{
+    "name": "mydb-colors"
+  , "version": "0.1.0"
+  , "dependencies": {
+        "mydb": "~0.1.0"
+      , "mydb-client": "~0.1.0"
+      , "express": "3.0.x"
+      , "superagent": "~0.4.1"
+      , "jade": "0.24.0"
+      , "debug": "~0.7.0"
+      , "passport": "~0.1.8"
+      , "passport-twitter": "~0.1.3"
+    }
+}
