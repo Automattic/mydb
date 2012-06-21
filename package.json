@@ -1,6 +1,6 @@
 {
     "name": "mydb"
-  , "version": "0.1.1"
+  , "version": "0.2.0"
   , "main": "./lib/mydb"
   , "dependencies": {
         "redis": "0.7.x"
@@ -9,7 +9,7 @@
       , "debug": "0.6.x"
     }
   , "devDependencies": {
-        "mydb-client": "0.1.0"
+        "mydb-client": "0.2.0"
       , "express": "2.5.x"
       , "mocha": "*"
       , "expect.js": "*"

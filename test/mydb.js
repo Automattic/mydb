@@ -29,7 +29,7 @@ describe('mydb', function () {
           expose(col.insert({ nice: 'try' }));
         });
 
-        cl('/', function (doc) {
+        var doc = cl('/', function () {
           expect(doc.nice).to.be('try');
           done();
         });
@@ -50,7 +50,7 @@ describe('mydb', function () {
           expose(col.insert({ nice: 'try' }));
         });
 
-        cl.doc('/', function (doc) {
+        var doc = cl.doc('/', function () {
           expect(doc.nice).to.be('try');
           done();
         });
@@ -78,10 +78,10 @@ describe('mydb', function () {
           });
         });
 
-        cl('/', function (doc, ops) {
+        var doc = cl('/', function () {
           expect(doc.tobi).to.eql('woot');
           col.updateById(id, { $set: { tobi: 'test' } });
-          ops.on('tobi', function (v) {
+          doc.on('tobi', function (v) {
             console.log(v);
             expect(v).to.be('test');
             done();
@@ -107,7 +107,7 @@ describe('mydb', function () {
           expose(d);
         });
 
-        cl('/', function (doc, ops) {
+        var doc = cl('/', function () {
           expect(doc.test).to.eql('fam');
           col.findById(doc._id, function (err, d) {
             expect(err).to.be(null);
@@ -137,7 +137,7 @@ describe('mydb', function () {
           });
         });
 
-        cl('/', function (doc, ops) {
+        var doc = cl('/', function () {
           expect(doc.expose).to.eql('findOne');
           done();
         });
@@ -160,7 +160,7 @@ describe('mydb', function () {
           expose(col.insert({ expose: 'insert' }));
         });
 
-        cl('/', function (doc, ops) {
+        var doc = cl('/', function () {
           expect(doc.expose).to.eql('insert');
           done();
         });
@@ -183,10 +183,10 @@ describe('mydb', function () {
           expose(col.insert({ nice: 'try' }));
         });
 
-        var docu = cl('/', function (doc, ops) {
+        var doc = cl('/', function () {
           expect(doc.nice).to.be('try');
           col.updateById(doc._id, { $set: { nice: 'tries' } });
-          docu.once('op', function (op) {
+          doc.once('op', function (op) {
             expect(op.$set).to.eql({ nice: 'tries' });
             done();
           });
@@ -210,10 +210,10 @@ describe('mydb', function () {
           expose(col.insert({ nice: 'try' }));
         });
 
-        cl('/', function (doc, ops) {
+        var doc = cl('/', function () {
           expect(doc.nice).to.be('try');
           col.updateById(doc._id, { $set: { nice: 'tries' } });
-          ops.on('nice', function (v) {
+          doc.on('nice', function (v) {
             expect(v).to.equal('tries');
             expect(doc.nice).to.equal('tries');
             done();
@@ -236,16 +236,16 @@ describe('mydb', function () {
           expose(col.insert({ nice: 'try' }));
         });
 
-        cl('/', function (doc, ops) {
+        var doc = cl('/', function () {
           expect(doc.nice).to.be('try');
           col.updateById(doc._id, { $push: { items: 'try' } });
-          ops.once('items', 'push', function (v) {
+          doc.once('items', 'push', function (v) {
             expect(v).to.be('try');
             expect(doc.items).to.be.an('array');
             expect(doc.items[0]).to.be('try');
 
             col.updateById(doc._id, { $push: { items: 'try 2' } });
-            ops.once('items', 'push', function (v) {
+            doc.once('items', 'push', function (v) {
               expect(v).to.be('try 2');
               expect(doc.items[1]).to.be('try 2');
               done();
@@ -268,9 +268,9 @@ describe('mydb', function () {
           expose(col.insert({}));
         });
 
-        cl('/', function (doc, ops) {
+        var doc = cl('/', function () {
           col.update({ _id: doc._id }, { $push: { unknown: 'test' } });
-          ops.once('unknown', 'push', function (v) {
+          doc.once('unknown', 'push', function (v) {
             expect(v).to.equal('test');
             expect(doc.unknown).to.be.an('array');
             expect(doc.unknown).to.eql(['test']);
@@ -294,10 +294,10 @@ describe('mydb', function () {
           expose(col.insert({ count: 4 }));
         });
 
-        cl('/', function (doc, ops) {
+        var doc = cl('/', function () {
           expect(doc.count).to.be(4);
           col.updateById(doc._id, { $inc: { count: 1 } });
-          ops.once('count', 'inc', function (v) {
+          doc.once('count', 'inc', function (v) {
             expect(v).to.be(1);
             expect(doc.count).to.be(5);
             done();
@@ -320,11 +320,11 @@ describe('mydb', function () {
           expose(col.insert({ a: 'b', c: 'd' }));
         });
 
-        cl('/', function (doc, ops) {
+        var doc = cl('/', function () {
           expect(doc.a).to.be('b');
           expect(doc.c).to.be('d');
           col.updateById(doc._id, { $unset: { c: 1 } });
-          ops.once('c', 'unset', function () {
+          doc.once('c', 'unset', function () {
             expect(doc.a).to.be('b');
             expect(doc.c).to.be(undefined);
             done();
@@ -347,13 +347,13 @@ describe('mydb', function () {
           expose(col.insert({ ferrets: ['a', 'b', 'c'] }));
         });
 
-        cl('/', function (doc, ops) {
+        var doc = cl('/', function () {
           expect(doc.ferrets).to.eql(['a', 'b', 'c']);
           col.updateById(doc._id, { $pushAll: { ferrets: ['d', 'e'] } });
 
           // push all gets expressed in the client as multiple pushes
           var total = 0;
-          ops.on('ferrets', 'push', function (v) {
+          doc.on('ferrets', 'push', function (v) {
             switch (++total) {
               case 1:
                 expect(v).to.be('d');
@@ -388,12 +388,12 @@ describe('mydb', function () {
           expose(col.insert({}));
         });
 
-        cl('/', function (doc, ops) {
+        var doc = cl('/', function () {
           col.updateById(doc._id, { $pushAll: { ferrets: ['d', 'e'] } });
 
           var total = 0;
 
-          ops.on('ferrets', 'push', function (v) {
+          doc.on('ferrets', 'push', function (v) {
             switch (++total) {
               case 1:
                 expect(v).to.be('d');
@@ -430,21 +430,21 @@ describe('mydb', function () {
           expose(col.insert({ set: ['a', 'b', 'c'] }));
         });
 
-        var docu = cl('/', function (doc, ops) {
+        var doc = cl('/', function () {
           col.updateById(doc._id, { $addToSet: { set: 'd' } });
-          ops.once('set', 'push', function () {
+          doc.once('set', 'push', function () {
             expect(doc.set).to.contain('d');
             col.updateById(doc._id, { $addToSet: { set: 'd' } });
 
             var ignorePush = false;
 
-            ops.once('set', 'push', function () {
+            doc.once('set', 'push', function () {
               if (!ignorePush) {
                 done(new Error('Unexpected push event'));
               }
             });
 
-            docu.once('noop', function (v) {
+            doc.once('noop', function (v) {
               expect(v.$addToSet).to.eql({ set: 'd' });
 
               process.nextTick(function () {
@@ -457,7 +457,7 @@ describe('mydb', function () {
 
                 var total = 0;
 
-                ops.on('set', 'push', function (v) {
+                doc.on('set', 'push', function (v) {
                   switch (++total) {
                     case 1:
                       expect(v).to.equal('e');
@@ -493,9 +493,9 @@ describe('mydb', function () {
           expose(col.insert({}));
         });
 
-        cl('/', function (doc, ops) {
+        var doc = cl('/', function () {
           col.updateById(doc._id, { $addToSet: { a: 'b' } });
-          ops.on('a', 'push', function (v) {
+          doc.on('a', 'push', function (v) {
             expect(v).to.be('b');
             expect(doc.a).to.be.an('array');
             expect(doc.a).to.eql(['b']);
@@ -504,7 +504,7 @@ describe('mydb', function () {
 
             var total = 0;
 
-            ops.on('b', 'push', function (v) {
+            doc.on('b', 'push', function (v) {
               switch (++total) {
                 case 1:
                   expect(v).to.be(1);
@@ -543,7 +543,7 @@ describe('mydb', function () {
           ]}));
         });
 
-        cl('/', function (doc, ops) {
+        var doc = cl('/', function () {
           expect(doc.animals).to.eql([
               { type: 'ferret', name: 'tobi' }
             , { type: 'dog', name: 'raul' }
@@ -551,7 +551,7 @@ describe('mydb', function () {
           ]);
           col.updateById(doc._id, { $pull: { animals: { type: 'ferret' } } });
           var total = 0
-          ops.on('animals', 'pull', function (v) {
+          doc.on('animals', 'pull', function (v) {
             switch (++total) {
               case 1:
                 expect(v).to.eql({ type: 'ferret', name: 'tobi' });
@@ -588,11 +588,11 @@ describe('mydb', function () {
           expose(col.insert({ numbers: [1, 2, 3, 1] }));
         });
 
-        cl('/', function (doc, ops) {
+        var doc = cl('/', function () {
           expect(doc.numbers).to.eql([1, 2, 3, 1]);
           col.updateById(doc._id, { $pullAll: { numbers: [1, 3] } });
           var total = 0
-          ops.on('numbers', 'pull', function (v) {
+          doc.on('numbers', 'pull', function (v) {
             switch (++total) {
               case 1:
                 expect(v).to.eql(1);
@@ -629,15 +629,15 @@ describe('mydb', function () {
           expose(col.insert({ numbers: [1, 2, 3, 4, 5] }));
         });
 
-        cl('/', function (doc, ops) {
+        var doc = cl('/', function () {
           expect(doc.numbers).to.eql([1, 2, 3, 4, 5]);
           col.updateById(doc._id, { $pop: { numbers: 1 } });
-          ops.once('numbers', 'pull', function (v) {
+          doc.once('numbers', 'pull', function (v) {
             expect(v).to.be(5);
             expect(doc.numbers).to.eql([1, 2, 3, 4]);
 
             col.updateById(doc._id, { $pop: { numbers: -1 } });
-            ops.once('numbers', 'pull', function (v) {
+            doc.once('numbers', 'pull', function (v) {
               expect(v).to.be(1);
               expect(doc.numbers).to.eql([2, 3, 4]);
               done();
@@ -661,14 +661,14 @@ describe('mydb', function () {
           expose(col.insert({ a: { b: 'c' } }));
         });
 
-        cl('/', function (doc, ops) {
+        var doc = cl('/', function () {
           expect(doc.a).to.eql({ b: 'c' });
           col.updateById(doc._id, { $rename: { a: 'c' } });
           var unset = false;
-          ops.on('a', 'unset', function () {
+          doc.on('a', 'unset', function () {
             unset = true;
           });
-          ops.on('c', function (v) {
+          doc.on('c', function (v) {
             expect(unset).to.be(true);
             expect(v).to.eql({ b: 'c' });
             expect(doc.a).to.be(undefined);
@@ -701,22 +701,22 @@ describe('mydb', function () {
 
         var total = 2;
 
-        cl('/a', function (doc, ops) {
+        var doc = cl('/a', function () {
           expect(doc.multiple).to.be('a');
-          ops.on('multiple', function (v) {
+          doc.on('multiple', function (v) {
             expect(v).to.be('aa');
             --total || done();
           });
           col.updateById(doc._id, { $set: { multiple: 'aa' } });
         });
 
-        cl('/b', function (doc, ops) {
-          expect(doc.multiple).to.be('b');
-          ops.on('multiple', function (v) {
+        var doc2 = cl('/b', function () {
+          expect(doc2.multiple).to.be('b');
+          doc2.on('multiple', function (v) {
             expect(v).to.be('bb');
             --total || done();
           });
-          col.updateById(doc._id, { $set: { multiple: 'bb' } });
+          col.updateById(doc2._id, { $set: { multiple: 'bb' } });
         });
       });
     });
