@@ -193,6 +193,31 @@ describe('mydb', function () {
         });
       });
     });
+
+    it('late load', function (done) {
+      var app = express.createServer()
+        , db = mydb(app, 'localhost/mydb')
+
+      // random col
+      var col = db.get('mydb-' + Date.now())
+
+      app.listen(6002, function () {
+        var cl = client('http://localhost:6002/mydb');
+
+        db('/lazy', function (conn, expose) {
+          expose(col.insert({ nice: 'try' }));
+        });
+
+        var doc = cl();
+        setTimeout(function () {
+          doc.load('/lazy');
+          doc.ready(function () {
+            expect(doc.nice)
+            done();
+          });
+        }, 20);
+      });
+    });
   });
 
   describe('operations', function () {
