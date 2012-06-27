@@ -1,5 +1,11 @@
 
-0.4.4 / 2012-06-27
+0.4.2 / 2012-06-27
+==================
+
+  * Removed console.log from tests.
+  * Bumped client.
+
+0.4.1 / 2012-06-27
 ==================
 
   * Bumped client.
