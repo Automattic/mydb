@@ -82,7 +82,6 @@ describe('mydb', function () {
           expect(doc.tobi).to.eql('woot');
           col.updateById(id, { $set: { tobi: 'test' } });
           doc.on('tobi', function (v) {
-            console.log(v);
             expect(v).to.be('test');
             done();
           });
