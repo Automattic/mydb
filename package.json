@@ -1,6 +1,6 @@
 {
     "name": "mydb"
-  , "version": "0.4.3"
+  , "version": "0.4.4"
   , "main": "./lib/mydb"
   , "dependencies": {
         "redis": "0.7.x"
