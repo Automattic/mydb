@@ -1,4 +1,9 @@
 
+0.4.6 / 2012-07-22 
+==================
+
+  * manager: avoid instanceof problems across modules
+
 0.4.5 / 2012-07-22
 ==================
 
