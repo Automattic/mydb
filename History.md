@@ -1,4 +1,9 @@
 
+0.4.5 / 2012-07-22
+==================
+
+  * manager: fixed ignoring options when not using `new`
+
 0.4.4 / 2012-07-17
 ==================
 

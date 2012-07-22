@@ -1,7 +1,8 @@
 {
     "name": "mydb"
-  , "version": "0.4.4"
+  , "version": "0.4.5"
   , "main": "./lib/mydb"
+  , "private": true
   , "dependencies": {
         "redis": "0.7.x"
       , "socket.io": "0.9.x"
