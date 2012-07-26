@@ -1,4 +1,9 @@
 
+0.4.7 / 2012-07-26
+==================
+
+  * manager: introduced Database with join/leave events
+
 0.4.6 / 2012-07-22 
 ==================
 
