@@ -12,6 +12,7 @@
   , "devDependencies": {
         "mydb-client": "0.4.3"
       , "express": "2.5.x"
+      , "socket.io-client": "0.9.x"
       , "mocha": "*"
       , "expect.js": "*"
     }
