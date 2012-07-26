@@ -7,6 +7,7 @@ var mydb = require('../lib/mydb')
   , client = require('mydb-client')
   , express = require('express')
   , expect = require('expect.js')
+  , sio = require('socket.io-client')
 
 /**
  * Test.
@@ -746,4 +747,69 @@ describe('mydb', function () {
     });
   });
 
+  describe('presence', function(){
+    it('should fire join/leave events', function(done){
+      var app = express.createServer()
+        , db = mydb(app, 'localhost/mydb')
+
+      // random col
+      var col = db.get('mydb-' + Date.now())
+
+      app.listen(9023, function () {
+        // quick hack to have the same sid
+        document = { cookie: 'mydb=woot' };
+
+        var cl = client(io('http://localhost:9023/mydb'))
+          , cl2 = client(io('http://localhost:9023/mydb'))
+          , connections = []
+          , joins = []
+          , disconnections = []
+          , leaves = []
+
+        delete global.document;
+
+        var tobi = db('/tobi', function (conn, expose) {
+          connections.push(conn.sid);
+          conn.on('disconnect', function(){
+            disconnections.push(conn.sid);
+          });
+          expose(col.insert({ test: '0' }));
+        });
+
+        tobi.on('join', function(conn){
+          joins.push(conn.sid);
+        });
+
+        tobi.on('leave', function(conn){
+          leaves.push(conn.sid);
+        });
+
+        var l1 = cl('/tobi', function(){
+          var l2 = cl2('/tobi', function(){
+            l1.socket.socket.disconnect();
+            l2.socket.socket.disconnect();
+            setTimeout(function(){
+              expect(connections).to.eql(['woot', 'woot']);
+              expect(disconnections).to.eql(['woot', 'woot']);
+              expect(joins).to.eql(['woot']);
+              expect(leaves).to.eql(['woot']);
+              done();
+            }, 100);
+          });
+        });
+      });
+    });
+  });
+
 });
+
+/**
+ * Helper to create a new socket.io client.
+ *
+ * @return {sio.Socket}
+ * @api private
+ */
+
+function io(url){
+  return sio.connect(url, { 'force new connection': true });
+};
