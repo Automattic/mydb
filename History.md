@@ -1,4 +1,9 @@
 
+0.4.8 / 2012-08-02
+==================
+
+  * database: fix join/leave logic for multiple clients
+
 0.4.7 / 2012-07-26
 ==================
 
