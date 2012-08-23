@@ -1,6 +1,6 @@
 {
     "name": "mydb"
-  , "version": "0.4.12"
+  , "version": "0.5.0"
   , "main": "./lib/mydb"
   , "private": true
   , "dependencies": {
