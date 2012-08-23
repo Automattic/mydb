@@ -7,7 +7,7 @@ var mydb = require('../lib/mydb')
   , client = require('mydb-client')
   , express = require('express')
   , expect = require('expect.js')
-  , sio = require('socket.io-client')
+  , sio = require('socket.io-client');
 
 /**
  * Test.
@@ -216,6 +216,57 @@ describe('mydb', function () {
             done();
           });
         }, 20);
+      });
+    });
+
+    it('upon', function(done){
+      var app = express.createServer()
+        , db = mydb(app, 'localhost/mydb')
+
+      // random col
+      var col = db.get('mydb-' + Date.now())
+
+      app.listen(6003, function () {
+        var cl = client('http://localhost:6003/mydb');
+
+        db('/upon', function (conn, expose) {
+          expose(col.insert({ some: false, falsy: 0, whoop: true }));
+        });
+
+        var doc = cl('/upon');
+        var total = 3;
+        doc.upon('some', function(v){
+          expect(v).to.be(false);
+          --total || next();
+        });
+        doc.upon('falsy', function(v){
+          expect(v).to.be(0);
+          --total || next();
+        });
+        doc.upon('whoop', function(v){
+          expect(v).to.be(true);
+          --total || next();
+        });
+
+        function next(){
+          // should be first called with undefined, then with 0
+          var calls = 0;
+          doc.upon('something_new', function(v){
+            calls++;
+            switch (calls) {
+              case 1:
+                expect(v).to.be(undefined);
+                break;
+
+              case 2:
+                expect(v).to.be(0);
+                done();
+            }
+          });
+          col.update(doc._id, { $set: { something_new: 0 } }, function(err){
+            expect(err).to.be(null);
+          });
+        }
       });
     });
   });
