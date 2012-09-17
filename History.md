@@ -1,4 +1,11 @@
 
+0.6.0 / 2012-09-17
+==================
+
+  * package: added mydb-driver dependency
+  * manager: simplified code - leverage mydb-driver (BC)
+  * connection: updated subscription semantics
+
 0.5.5 / 2012-09-07
 ==================
 
