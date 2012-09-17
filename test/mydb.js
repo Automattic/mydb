@@ -18,10 +18,10 @@ describe('mydb', function () {
   describe('manager', function () {
     it('initialization', function (done) {
       var app = express.createServer()
-        , db = mydb(app, 'localhost/mydb')
+        , db = mydb(app, 'localhost/mydb');
 
       // random col
-      var col = db.get('mydb-' + Date.now())
+      var col = db.get('mydb-' + Date.now());
 
       app.listen(5000, function () {
         var cl = client('http://localhost:5000/mydb');
@@ -39,10 +39,10 @@ describe('mydb', function () {
 
     it('doc proxy method', function (done) {
       var app = express.createServer()
-        , db = mydb(app, 'localhost/mydb')
+        , db = mydb(app, 'localhost/mydb');
 
       // random col
-      var col = db.get('mydb-' + Date.now())
+      var col = db.get('mydb-' + Date.now());
 
       app.listen(7000, function () {
         var cl = client('http://localhost:7000/mydb');
@@ -62,15 +62,15 @@ describe('mydb', function () {
   describe('exposing', function () {
     it('hex string and collection', function (done) {
       var app = express.createServer()
-        , db = mydb(app, 'localhost/mydb')
+        , db = mydb(app, 'localhost/mydb');
 
       // random col
       var colName = 'mydb-' + Date.now()
-        , col = db.get(colName)
+        , col = db.get(colName);
 
       app.listen(9001, function () {
         var cl = client('http://localhost:9001/mydb')
-          , id
+          , id;
 
         db('/', function (conn, expose) {
           col.insert({ tobi: 'woot' }, function (err, doc) {
@@ -92,15 +92,15 @@ describe('mydb', function () {
 
     it('findAndModify upsert', function (done) {
       var app = express.createServer()
-        , db = mydb(app, 'localhost/mydb')
+        , db = mydb(app, 'localhost/mydb');
 
       // random col
       var colName = 'mydb-' + Date.now()
-        , col = db.get(colName)
+        , col = db.get(colName);
 
       app.listen(9002, function () {
         var cl = client('http://localhost:9002/mydb')
-          , id
+          , id;
 
         db('/', function (conn, expose) {
           var d = col.findAndModify({ test: 'fam' }, { test: 'fam' }, { upsert: true });
@@ -120,15 +120,15 @@ describe('mydb', function () {
 
     it('findOne promise', function (done) {
       var app = express.createServer()
-        , db = mydb(app, 'localhost/mydb')
+        , db = mydb(app, 'localhost/mydb');
 
       // random col
       var colName = 'mydb-' + Date.now()
-        , col = db.get(colName)
+        , col = db.get(colName);
 
       app.listen(9003, function () {
         var cl = client('http://localhost:9003/mydb')
-          , id
+          , id;
 
         db('/', function (conn, expose) {
           col.insert({ expose: 'findOne' }, function (err, doc) {
@@ -146,15 +146,15 @@ describe('mydb', function () {
 
     it('insert promise', function (done) {
       var app = express.createServer()
-        , db = mydb(app, 'localhost/mydb')
+        , db = mydb(app, 'localhost/mydb');
 
       // random col
       var colName = 'mydb-' + Date.now()
-        , col = db.get(colName)
+        , col = db.get(colName);
 
       app.listen(9004, function () {
         var cl = client('http://localhost:9004/mydb')
-          , id
+          , id;
 
         db('/', function (conn, expose) {
           expose(col.insert({ expose: 'insert' }));
@@ -171,10 +171,10 @@ describe('mydb', function () {
   describe('document', function () {
     it('operation event', function (done) {
       var app = express.createServer()
-        , db = mydb(app, 'localhost/mydb')
+        , db = mydb(app, 'localhost/mydb');
 
       // random col
-      var col = db.get('mydb-' + Date.now())
+      var col = db.get('mydb-' + Date.now());
 
       app.listen(6001, function () {
         var cl = client('http://localhost:6001/mydb');
@@ -196,10 +196,10 @@ describe('mydb', function () {
 
     it('late load', function (done) {
       var app = express.createServer()
-        , db = mydb(app, 'localhost/mydb')
+        , db = mydb(app, 'localhost/mydb');
 
       // random col
-      var col = db.get('mydb-' + Date.now())
+      var col = db.get('mydb-' + Date.now());
 
       app.listen(6002, function () {
         var cl = client('http://localhost:6002/mydb');
@@ -212,7 +212,7 @@ describe('mydb', function () {
         setTimeout(function () {
           doc.load('/lazy');
           doc.ready(function () {
-            expect(doc.nice)
+            expect(doc.nice);
             done();
           });
         }, 20);
@@ -221,10 +221,10 @@ describe('mydb', function () {
 
     it('upon', function(done){
       var app = express.createServer()
-        , db = mydb(app, 'localhost/mydb')
+        , db = mydb(app, 'localhost/mydb');
 
       // random col
-      var col = db.get('mydb-' + Date.now())
+      var col = db.get('mydb-' + Date.now());
 
       app.listen(6003, function () {
         var cl = client('http://localhost:6003/mydb');
@@ -274,10 +274,10 @@ describe('mydb', function () {
   describe('operations', function () {
     it('set', function (done) {
       var app = express.createServer()
-        , db = mydb(app, 'localhost/mydb')
+        , db = mydb(app, 'localhost/mydb');
 
       // random col
-      var col = db.get('mydb-' + Date.now())
+      var col = db.get('mydb-' + Date.now());
 
       app.listen(5001, function () {
         var cl = client('http://localhost:5001/mydb');
@@ -300,10 +300,10 @@ describe('mydb', function () {
 
     it('push', function (done) {
       var app = express.createServer()
-        , db = mydb(app, 'localhost/mydb')
+        , db = mydb(app, 'localhost/mydb');
 
       // random col
-      var col = db.get('mydb-' + Date.now())
+      var col = db.get('mydb-' + Date.now());
 
       app.listen(5002, function () {
         var cl = client('http://localhost:5002/mydb');
@@ -333,7 +333,7 @@ describe('mydb', function () {
 
     it('push (unset)', function (done) {
       var app = express.createServer()
-        , db = mydb(app, 'localhost/mydb')
+        , db = mydb(app, 'localhost/mydb');
 
       var col = db.get('mydb-' + Date.now());
 
@@ -358,10 +358,10 @@ describe('mydb', function () {
 
     it('inc', function (done) {
       var app = express.createServer()
-        , db = mydb(app, 'localhost/mydb')
+        , db = mydb(app, 'localhost/mydb');
 
       // random col
-      var col = db.get('mydb-' + Date.now())
+      var col = db.get('mydb-' + Date.now());
 
       app.listen(5003, function () {
         var cl = client('http://localhost:5003/mydb');
@@ -384,10 +384,10 @@ describe('mydb', function () {
 
     it('unset', function (done) {
       var app = express.createServer()
-        , db = mydb(app, 'localhost/mydb')
+        , db = mydb(app, 'localhost/mydb');
 
       // random col
-      var col = db.get('mydb-' + Date.now())
+      var col = db.get('mydb-' + Date.now());
 
       app.listen(5004, function () {
         var cl = client('http://localhost:5004/mydb');
@@ -411,10 +411,10 @@ describe('mydb', function () {
 
     it('pushAll', function (done) {
       var app = express.createServer()
-        , db = mydb(app, 'localhost/mydb')
+        , db = mydb(app, 'localhost/mydb');
 
       // random col
-      var col = db.get('mydb-' + Date.now())
+      var col = db.get('mydb-' + Date.now());
 
       app.listen(5005, function () {
         var cl = client('http://localhost:5005/mydb');
@@ -452,10 +452,10 @@ describe('mydb', function () {
 
     it('pushAll (unset)', function (done) {
       var app = express.createServer()
-        , db = mydb(app, 'localhost/mydb')
+        , db = mydb(app, 'localhost/mydb');
 
       // random col
-      var col = db.get('mydb-' + Date.now())
+      var col = db.get('mydb-' + Date.now());
 
       app.listen(5105, function () {
         var cl = client('http://localhost:5105/mydb');
@@ -494,10 +494,10 @@ describe('mydb', function () {
 
     it('addToSet', function (done) {
       var app = express.createServer()
-        , db = mydb(app, 'localhost/mydb')
+        , db = mydb(app, 'localhost/mydb');
 
       // random col
-      var col = db.get('mydb-' + Date.now())
+      var col = db.get('mydb-' + Date.now());
 
       app.listen(5006, function () {
         var cl = client('http://localhost:5006/mydb');
@@ -557,10 +557,10 @@ describe('mydb', function () {
 
     it('addToSet (unset)', function (done) {
       var app = express.createServer()
-        , db = mydb(app, 'localhost/mydb')
+        , db = mydb(app, 'localhost/mydb');
 
       // random col
-      var col = db.get('mydb-' + Date.now())
+      var col = db.get('mydb-' + Date.now());
 
       app.listen(5007, function () {
         var cl = client('http://localhost:5007/mydb');
@@ -603,10 +603,10 @@ describe('mydb', function () {
 
     it('pull', function (done) {
       var app = express.createServer()
-        , db = mydb(app, 'localhost/mydb')
+        , db = mydb(app, 'localhost/mydb');
 
       // random col
-      var col = db.get('mydb-' + Date.now())
+      var col = db.get('mydb-' + Date.now());
 
       app.listen(5008, function () {
         var cl = client('http://localhost:5008/mydb');
@@ -626,7 +626,7 @@ describe('mydb', function () {
             , { type: 'ferret', name: 'locki' }
           ]);
           col.updateById(doc._id, { $pull: { animals: { type: 'ferret' } } });
-          var total = 0
+          var total = 0;
           doc.on('animals', 'pull', function (v) {
             switch (++total) {
               case 1:
@@ -652,10 +652,10 @@ describe('mydb', function () {
 
     it('pullAll', function (done) {
       var app = express.createServer()
-        , db = mydb(app, 'localhost/mydb')
+        , db = mydb(app, 'localhost/mydb');
 
       // random col
-      var col = db.get('mydb-' + Date.now())
+      var col = db.get('mydb-' + Date.now());
 
       app.listen(5009, function () {
         var cl = client('http://localhost:5009/mydb');
@@ -667,7 +667,7 @@ describe('mydb', function () {
         var doc = cl('/', function () {
           expect(doc.numbers).to.eql([1, 2, 3, 1]);
           col.updateById(doc._id, { $pullAll: { numbers: [1, 3] } });
-          var total = 0
+          var total = 0;
           doc.on('numbers', 'pull', function (v) {
             switch (++total) {
               case 1:
@@ -693,10 +693,10 @@ describe('mydb', function () {
 
     it('pop', function (done) {
       var app = express.createServer()
-        , db = mydb(app, 'localhost/mydb')
+        , db = mydb(app, 'localhost/mydb');
 
       // random col
-      var col = db.get('mydb-' + Date.now())
+      var col = db.get('mydb-' + Date.now());
 
       app.listen(5010, function () {
         var cl = client('http://localhost:5010/mydb');
@@ -725,10 +725,10 @@ describe('mydb', function () {
 
     it('rename', function (done) {
       var app = express.createServer()
-        , db = mydb(app, 'localhost/mydb')
+        , db = mydb(app, 'localhost/mydb');
 
       // random col
-      var col = db.get('mydb-' + Date.now())
+      var col = db.get('mydb-' + Date.now());
 
       app.listen(5011, function () {
         var cl = client('http://localhost:5011/mydb');
@@ -754,15 +754,53 @@ describe('mydb', function () {
         });
       });
     });
+
+    //it('positional operator', function(done){
+      //var app = express.createServer()
+        //, db = mydb(app, 'localhost/mydb');
+
+      //// random col
+      //var col = db.get('mydb-' + Date.now());
+      //var tj = col.id();
+      //var jane = col.id();
+      //var tobi = col.id();
+
+      //app.listen(15011, function () {
+        //var cl = client('http://localhost:15011/mydb');
+
+        //db('/', function (conn, expose) {
+          //expose(col.insert({
+            //people: [
+              //{ _id: tobi, name: 'Tobi' },
+              //{ _id: tj, name: 'Tj' },
+              //{ _id: jane, name: 'Jane' }
+            //]
+          //}));
+        //});
+
+        //var doc = cl('/', function () {
+          //expect(doc.people).to.be.an(Array);
+          //col.update({ _id: doc._id, 'people._id': tj }, { $set: { 'people.$.name': 'Holowaychuk', 'people.$.owner': true } });
+          //doc.on('people.owner', function (v) {
+            //expect(doc.people).to.eql([
+              //{ _id: tobi, name: 'Tobi' },
+              //{ _id: tj, name: 'Holowaychuk', owner: true },
+              //{ _id: jane, name: 'Jane' }
+            //]);
+            ////done();
+          //});
+        //});
+      //});
+    //});
   });
 
   describe('multiple documents over a same socket', function () {
     it('should receive isolated events', function (done) {
       var app = express.createServer()
-        , db = mydb(app, 'localhost/mydb')
+        , db = mydb(app, 'localhost/mydb');
 
       // random col
-      var col = db.get('mydb-' + Date.now())
+      var col = db.get('mydb-' + Date.now());
 
       app.listen(11000, function () {
         var cl = client('http://localhost:11000/mydb');
@@ -801,10 +839,10 @@ describe('mydb', function () {
   describe('presence', function(){
     it('should fire join/leave events', function(done){
       var app = express.createServer()
-        , db = mydb(app, 'localhost/mydb')
+        , db = mydb(app, 'localhost/mydb');
 
       // random col
-      var col = db.get('mydb-' + Date.now())
+      var col = db.get('mydb-' + Date.now());
 
       app.listen(9023, function () {
         // quick hack to have the same sid
