@@ -269,6 +269,47 @@ describe('mydb', function () {
         }
       });
     });
+
+    it('each', function(done){
+      var app = express.createServer()
+        , db = mydb(app, 'localhost/mydb');
+
+      // random col
+      var col = db.get('mydb-' + Date.now());
+
+      app.listen(6303, function () {
+        var cl = client('http://localhost:6303/mydb');
+        var values = ['a', 'b', 'c', 'd'];
+
+        db('/each', function (conn, expose) {
+          expose(col.insert({ some: values }));
+        });
+
+        var doc = cl('/each');
+        expect(doc.isReady).to.be(false);
+        var i = 0;
+        doc.each('some', function(v){
+          expect(doc.isReady).to.be(true);
+          expect(v).to.equal(values[i++]);
+          if (i == 4) {
+            values.push('e');
+            col.update(doc._id, { $push: { some: 'e' } });
+          }
+          if (i == 5) next();
+        });
+
+        function next(){
+          var i = 0;
+          var values = [{ a: 'b' }, { c: 'd' }];
+          doc.each('empty', function(v){
+            expect(v).to.eql(values[i++]);
+            if (i == 2) done();
+          });
+          col.update(doc._id, { $push: { empty: { a: 'b' } } });
+          col.update(doc._id, { $push: { empty: { c: 'd' } } });
+        }
+      });
+    });
   });
 
   describe('operations', function () {
