@@ -875,6 +875,55 @@ describe('mydb', function () {
         });
       });
     });
+
+    it('should handle multiple instances of same endpoint', function(done){
+      var app = express.createServer()
+        , db = mydb(app, 'localhost/mydb');
+
+      // random col
+      var col = db.get('mydb-' + Date.now());
+
+      app.listen(11001, function () {
+        var cl = client('http://localhost:11001/mydb');
+
+        db('/a', function (conn, expose) {
+          expose(col.insert({ multiple: 'a' }));
+        });
+
+        var total = 0;
+
+        var doc1 = cl('/a', function(){
+          var doc2 = cl('/a', function(){
+            var doc3 = cl('/a', function(){
+
+              doc1.on('multiple', function(){
+                total++;
+                expect(doc1.multiple).to.be('haha');
+              });
+
+              doc2.on('multiple', function(){
+                total++;
+                expect(doc2.multiple).to.be('haha');
+              });
+
+              doc3.on('multiple', function(){
+                total++;
+                expect(doc3.multiple).to.be('haha');
+              });
+
+              // we set a timeout to try to avoid a regression of multiple
+              // callbacks per document
+              setTimeout(function(){
+                expect(total).to.be(3);
+                done();
+              }, 200);
+
+              col.update(doc1._id, { $set: { multiple: 'haha' } });
+            });
+          });
+        });
+      });
+    });
   });
 
   describe('presence', function(){
