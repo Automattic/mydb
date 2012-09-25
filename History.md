@@ -1,4 +1,9 @@
 
+0.6.9 / 2012-09-25
+==================
+
+  * connection: prevent more than one subscription for operations per socket
+
 0.6.8 / 2012-09-25
 ==================
 
