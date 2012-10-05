@@ -1,13 +1,10 @@
 
-MOCHA=mocha
-REPORTER=dot
-TESTS = $(shell find test/*.js)
+REPORTER = dot
 
 test:
-	@$(MOCHA) \
+	@./node_modules/.bin/mocha \
 		--reporter $(REPORTER) \
 		--slow 100ms \
-		--bail \
-		$(TESTS)
+		--bail
 
 .PHONY: test
