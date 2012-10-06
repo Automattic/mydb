@@ -152,7 +152,7 @@ Client.prototype.onDestroy = function(sub){
  */
 
 Client.prototype.onOp = function(sub, obj){
-  this.send({ e: 'o', i: sub.id });
+  this.send({ e: 'o', i: sub.id, d: obj });
 };
 
 /**
