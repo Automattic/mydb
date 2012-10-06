@@ -7,6 +7,12 @@ var EventEmitter = require('events').EventEmitter
   , debug = require('debug')('mydb-subscription');
 
 /**
+ * Module exports.
+ */
+
+module.exports = Subscription;
+
+/**
  * Subscription.
  *
  * @param {Server} server
