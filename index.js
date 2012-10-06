@@ -31,6 +31,24 @@ module.exports = Server;
 
 function Server(http, opts){
   if (!(this instanceof Server)) return new Server(http, opts);
+
+  // redis
+  if ('object' != typeof opts.redis) {
+    var uri = parse(opts.redis || 'localhost:6379');
+    this.redis = redis(uri.name, uri.port);
+  }
+
+  // redis sub
+  if ('object' != typeof opts.redisSub) {
+    var uri = parse(opts.redisSub || 'localhost:6379');
+    this.redisSub = redis(uri.name, uri.port);
+  }
+
+  // mongodb
+  if ('object' != typeof opts.mongo) {
+    this.mongo = monk(opts.mongo || 'localhost/27017');
+  }
+
   this.http = http;
   this.engine = engine.attach(http);
   this.engine.on('connection', this.onConnection.bind(this));
