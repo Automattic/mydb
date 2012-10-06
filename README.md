@@ -5,7 +5,7 @@
 
 ## Example
 
-```
+```js
 var http = require('http').Server();
 var mydb = require('mydb-server')(http);
 http.listen(3000);
