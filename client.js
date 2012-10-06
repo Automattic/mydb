@@ -7,6 +7,12 @@ var Subscription = require('./subscription')
   , debug = require('debug')('mydb:client');
 
 /**
+ * Module exports.
+ */
+
+module.exports = Client;
+
+/**
  * Client constructor.
  *
  * @param {Server} originating server
