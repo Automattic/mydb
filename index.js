@@ -14,7 +14,19 @@ var engine = require('engine.io')
  * Module exports.
  */
 
-module.exports = Server;
+module.exports = exports = Server;
+
+/**
+ * Exports `Client`.
+ */
+
+exports.Client = Client;
+
+/**
+ * Exports `Subscription`
+ */
+
+exports.Subscription = Subscription;
 
 /**
  * Server.
