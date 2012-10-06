@@ -9,14 +9,17 @@ var Subscription = require('./subscription')
 /**
  * Client constructor.
  *
+ * @param {Server} originating server
  * @param {Socket} engine.io socket
  * @api public
  */
 
-function Client(socket){
+function Client(server, socket){
+  this.server = server;
   this.socket = socket;
   this.subscriptions = {};
 
+  // attach events
   socket.on('message', this.onMessage.bind(this));
   socket.on('close', this.onClose.bind(this));
 };
