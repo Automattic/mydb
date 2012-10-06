@@ -83,6 +83,7 @@ Subscription.prototype.fetch = function(){
   var opts = { fields: this.fields };
   var self = this;
   this.mongo.get(this.col).findById(this.id, opts, function(err, doc){
+    if ('subscribed' != self.readyState) return;
     if (err) return self.emit('error', err);
     if (!doc) {
       var err = 'Document "' + self.col + '.' + self.id + '" not found';
