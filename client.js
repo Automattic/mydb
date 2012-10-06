@@ -159,6 +159,16 @@ Client.prototype.onDestroy = function(sub){
 };
 
 /**
+ * Called when the socket closes.
+ *
+ * @api private
+ */
+
+Client.prototype.onClose = function(){
+  this.destroy();
+};
+
+/**
  * Writes an operation to the client.
  *
  * @param {Array} operation array (`[query, op]`)
