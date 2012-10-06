@@ -4,6 +4,8 @@
  */
 
 var engine = require('engine.io')
+  , redis = require('redis')
+  , monk = require('monk')
   , Client = require('./client')
   , Subscription = require('./subscription')
   , debug = require('debug')('mydb');
