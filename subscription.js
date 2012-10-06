@@ -51,6 +51,7 @@ Subscription.prototype.get = function(){
     }
     self.oid = data.i;
     self.fields = data.f || {};
+    self.col = data.c;
     self.subscribe();
   });
 };
