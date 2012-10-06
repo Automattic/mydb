@@ -92,16 +92,16 @@ Client.prototype.subscribe = function(id){
   var sub = new Subscription(id);
   var self = this;
   this.subscriptions[id] = sub;
-  this.sub.on('payload', function(obj){
+  sub.on('payload', function(obj){
     self.onPayload(sub, obj);
   });
-  this.sub.on('op', function(obj){
+  sub.on('op', function(obj){
     self.onOp(sub, obj);
   });
-  this.sub.on('error', function(err){
+  sub.on('error', function(err){
     self.onError(sub, err);
   });
-  this.sub.on('destroy', this.onDestroy.bind(this, sub));
+  sub.on('destroy', this.onDestroy.bind(this, sub));
 };
 
 /**
