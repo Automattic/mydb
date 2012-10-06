@@ -81,9 +81,11 @@ Client.prototype.onMessage = function(msg){
 Client.prototype.onPacket = function(packet){
   switch (packet.e) {
     case 'subscribe':
+      debug('got subscription packet to "%s"', packet.i);
       return this.subscribe(packet.i);
 
     case 'unsubscribe':
+      debug('got unsubscription packet to "%s"', packet.i);
       return this.unsubscribe(packet.i);
 
     default:
@@ -120,6 +122,7 @@ Client.prototype.subscribe = function(id){
  */
 
 Client.prototype.destroy = function(){
+  debug('destroying all subscriptions');
   for (var i in this.subscriptions) {
     this.subscriptions[i].destroy();
   }
@@ -133,8 +136,10 @@ Client.prototype.destroy = function(){
  */
 
 Client.prototype.onError = function(){
+  debug('subscription error');
   this.destroy();
   if (this.open()) {
+    debug('telling socket to close');
     this.socket.close();
   }
 };
