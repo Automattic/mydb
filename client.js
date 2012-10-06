@@ -145,6 +145,17 @@ Client.prototype.onDestroy = function(sub){
 };
 
 /**
+ * Writes an operation to the client.
+ *
+ * @param {Array} operation array (`[query, op]`)
+ * @api private
+ */
+
+Client.prototype.onOp = function(sub, obj){
+  this.send({ e: 'o', i: sub.id });
+};
+
+/**
  * Writes the payload to the client.
  *
  * @api private
