@@ -146,6 +146,8 @@ Subscription.prototype.destroy = function(){
   if ('subscribing' == this.readyState || 'subscribed' == this.readyState) {
     var self = this;
     this.readyState = 'unsubscribing';
+    this.ops = null;
+    this.payload = null;
     this.sub.unsubscribe(this.id, function(err){
       if (err) return self.emit('error', err);
       self.readyState = 'unsubscribed';
