@@ -4,7 +4,7 @@
  */
 
 var engine = require('engine.io')
-  , redis = require('redis')
+  , redis = require('redis').createClient
   , monk = require('monk')
   , Client = require('./client')
   , Subscription = require('./subscription')
