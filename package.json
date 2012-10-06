@@ -1,12 +1,10 @@
 {
     "name": "mydb"
-  , "version": "0.6.9"
-  , "main": "./lib/mydb"
+  , "version": "1.0.0"
   , "private": true
   , "dependencies": {
         "redis": "0.7.x"
-      , "socket.io": "0.9.x"
-      , "mydb-driver": "git+ssh://git@github.com:LearnBoost/mydb-driver.git#0.1.1"
+      , "engine.io": "0.3.0"
       , "debug": "0.6.x"
     }
   , "devDependencies": {
