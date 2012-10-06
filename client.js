@@ -92,7 +92,7 @@ Client.prototype.onPacket = function(packet){
  */
 
 Client.prototype.subscribe = function(id){
-  var sub = new Subscription(id);
+  var sub = new Subscription(this.server, id);
   var self = this;
   this.subscriptions[id] = sub;
   sub.on('payload', function(obj){
