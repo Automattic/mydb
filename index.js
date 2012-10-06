@@ -62,5 +62,5 @@ function Server(http, opts){
  */
 
 Server.prototype.onConnection = function(socket){
-  new Client(socket);
+  new Client(this, socket);
 };
