@@ -11,6 +11,7 @@
   "devDependencies": {
     "mocha": "*",
     "expect.js": "*",
-    "mydb-client": "git+ssh://git@github.com:LearnBoost/mydb-client.git#master"
+    "mydb-client": "git+ssh://git@github.com:LearnBoost/mydb-client.git#master",
+    "mydb-expose": "git+ssh://git@github.com:LearnBoost/mydb-expose.git#0.2.0"
   }
 }
