@@ -6,6 +6,13 @@
 var Subscription = require('./subscription')
   , debug = require('debug')('mydb:client');
 
+/**
+ * Client constructor.
+ *
+ * @param {Socket} engine.io socket
+ * @api public
+ */
+
 function Client(socket){
   this.socket = socket;
   this.subscriptions = {};
@@ -132,6 +139,7 @@ Client.prototype.onError = function(){
 
 Client.prototype.onDestroy = function(sub){
   if (this.open()){
+    debug('acknowledging subscription removal "%s"', sub.id);
     this.send({ e: 'u', i: sub.id });
   }
 };
