@@ -44,16 +44,18 @@ exports.Subscription = Subscription;
 function Server(http, opts){
   if (!(this instanceof Server)) return new Server(http, opts);
 
+  opts = opts || {};
+
   // redis
   if ('object' != typeof opts.redis) {
     var uri = parse(opts.redis || 'localhost:6379');
-    this.redis = redis(uri.name, uri.port);
+    this.redis = redis(uri.port, uri.host);
   }
 
   // redis sub
   if ('object' != typeof opts.redisSub) {
     var uri = parse(opts.redisSub || 'localhost:6379');
-    this.redisSub = redis(uri.name, uri.port);
+    this.redisSub = redis(uri.port, uri.host);
   }
 
   // mongodb
