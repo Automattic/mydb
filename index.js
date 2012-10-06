@@ -64,3 +64,18 @@ function Server(http, opts){
 Server.prototype.onConnection = function(socket){
   new Client(this, socket);
 };
+
+/**
+ * Connection URI parsing utility.
+ *
+ * @param {String} uri
+ * @return {Object} `name: 'localhost', port: 6379`
+ * @api private
+ */
+
+function parse(uri){
+  var pieces = uri.split(':');
+  var port = pieces.pop();
+  var host = pieces.pop();
+  return { host: host, port: port };
+}
