@@ -21,7 +21,9 @@ function Subscription(server, id){
   this.mongo = server.mongo;
   this.id = id;
   this.get();
+  this.ops = [];
   this.onMessage = this.onMessage.bind(this);
+  this.once('payload', this.emitOps.bind(this));
 }
 
 /**
@@ -77,7 +79,59 @@ Subscription.prototype.subscribe = function(){
  */
 
 Subscription.prototype.fetch = function(){
-  // fetch from mongo
+  var opts = { fields: this.fields };
+  var self = this;
+  this.mongo.get(this.col).findById(this.id, opts, function(err, doc){
+    if (err) return self.emit('error', err);
+    if (!doc) {
+      var err = 'Document "' + self.col + '.' + self.id + '" not found';
+      return self.emit('error', new Error(err));
+    }
+    debug('retrieved document "%s.%s"', self.col, self.id);
+    self.payload = doc;
+    self.emit('payload', doc);
+  });
+};
+
+/**
+ * Called for all subscriptions messages.
+ *
+ * @api private
+ */
+
+Subscription.prototype.onMessage = function(channel, message){
+  if (this.id == channel) {
+    var obj;
+
+    try {
+      obj = JSON.parse(message);
+    } catch(e){
+      this.emit('error', e);
+      return;
+    }
+
+    if (this.payload) {
+      this.emit('op', obj);
+    } else {
+      // if the payload is not set yet, we buffer op events
+      this.ops.push(obj);
+    }
+  }
+};
+
+/**
+ * Emits buffered `op` events.
+ *
+ * @api private
+ */
+
+Subscription.prototype.emitOps = function(){
+  if (this.ops.length) {
+    for (var i = 0; i < this.ops.length; i++) {
+      this.emit('op', this.ops[i]);
+    }
+    this.ops = [];
+  }
 };
 
 /**
