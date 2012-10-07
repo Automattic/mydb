@@ -4,6 +4,7 @@
  */
 
 var EventEmitter = require('events').EventEmitter
+  , minify = require('mongo-minify')
   , debug = require('debug')('mydb-subscription');
 
 /**
@@ -118,28 +119,20 @@ Subscription.prototype.onMessage = function(channel, message){
       return;
     }
 
-    // check for fields match
-    if (this.checkFields(obj[1])) {
+    // minify query based on subscription fields restrictions
+    var qry = minify(obj[1], this.fields);
+
+    if (Object.keys(qry).length) {
       if (this.payload) {
         this.emit('op', obj);
       } else {
         // if the payload is not set yet, we buffer op events
         this.ops.push(obj);
       }
+    } else {
+      debug('operation %j ignored minified with %j', obj[1], this.fields);
     }
   }
-};
-
-/**
- * Check that the given op is relevant to this subscription.
- *
- * @param {Object} operation object
- * @api private
- */
-
-Subscription.prototype.checkFields = function(op){
-  // XXX: implement me
-  return true;
 };
 
 /**
