@@ -7,7 +7,8 @@
     "engine.io": "0.3.0",
     "redis": "0.8.1",
     "monk": "0.5.0",
-    "debug": "*"
+    "debug": "*",
+    "mongo-minify": "git+ssh://git@github.com:LearnBoost/mongo-minify.git#0.1.0"
   },
   "devDependencies": {
     "mocha": "*",
