@@ -14,7 +14,7 @@
     "mocha": "*",
     "expect.js": "*",
     "express": "3.0.0rc4",
-    "mydb-driver": "git+ssh://git@github.com:LearnBoost/mydb-driver.git#0.3.0",
+    "mydb-driver": "git+ssh://git@github.com:LearnBoost/mydb-driver.git#0.3.1",
     "mydb-client": "git+ssh://git@github.com:LearnBoost/mydb-client.git#master",
     "mydb-expose": "git+ssh://git@github.com:LearnBoost/mydb-expose.git#0.2.0"
   }
