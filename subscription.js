@@ -72,7 +72,7 @@ Subscription.prototype.get = function(){
  */
 
 Subscription.prototype.subscribe = function(){
-  debug('subscribing to redis ops for "%s"', this.id);
+  debug('subscribing to redis ops for "%s"', this.oid);
   var self = this;
   this.readyState = 'subscribing';
   this.sub.subscribe(this.oid, function(err){
