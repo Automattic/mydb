@@ -47,6 +47,7 @@ Subscription.prototype.__proto__ = EventEmitter.prototype;
 
 Subscription.prototype.get = function(){
   var self = this;
+  debug('getting details for subscription "%s"', this.id);
   this.readyState = 'discoverying';
   this.redis.get(this.id, function(err, data){
     if (err) return self.emit('error', err);
