@@ -5,7 +5,7 @@
 
 var EventEmitter = require('events').EventEmitter
   , minify = require('mongo-minify')
-  , debug = require('debug')('mydb-subscription');
+  , debug = require('debug')('mydb:subscription');
 
 /**
  * Module exports.
