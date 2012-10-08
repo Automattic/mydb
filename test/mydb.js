@@ -77,6 +77,31 @@ describe('mydb', function(){
         });
       });
     });
+
+    it('should emit doc events', function(done){
+      var app = create();
+      var httpServer = http(app);
+      var mydb = server(httpServer);
+
+      posts.insert({ title: 'Tobi' });
+
+      app.get('/doc', function(req, res){
+        res.send(posts.findOne({ title: 'Tobi' }));
+      });
+
+      httpServer.listen(function(){
+        var db = client('ws://localhost:' + httpServer.address().port);
+        var doc = db.get('/doc', function(){
+          expect(doc.title).to.be('Tobi');
+          doc.on('title', function(v){
+            expect(v).to.be('Woot');
+            expect(doc.title).to.be('Woot');
+            done();
+          });
+          posts.update(doc._id, { $set: { title: 'Woot' } });
+        });
+      });
+    });
   });
 
 });
