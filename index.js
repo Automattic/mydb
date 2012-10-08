@@ -77,6 +77,7 @@ function Server(http, opts){
  */
 
 Server.prototype.onConnection = function(socket){
+  debug('initializing new client');
   new Client(this, socket);
 };
 
