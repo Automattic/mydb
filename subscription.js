@@ -57,9 +57,10 @@ Subscription.prototype.get = function(){
     } catch(e) {
       return self.emit('error', err);
     }
-    self.oid = data.i;
-    self.fields = data.f || {};
-    self.col = data.c;
+    debug('"%s" is "%s.%s" (%j)', self.id, obj.c, obj.i, obj.f || {});
+    self.oid = obj.i;
+    self.fields = obj.f || {};
+    self.col = obj.c;
     self.subscribe();
   });
 };
