@@ -16,7 +16,7 @@ var http = require('http').Server
  */
 
 var mongo = driver(process.env.MONGO_URI || 'localhost/mydb');
-var posts = mongo.get('posts');
+var posts = mongo.get('posts-' + Date.now());
 
 /**
  * Helper to create express app.
