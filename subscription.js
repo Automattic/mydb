@@ -113,7 +113,7 @@ Subscription.prototype.fetch = function(){
  */
 
 Subscription.prototype.onMessage = function(channel, message){
-  if (this.id == channel) {
+  if (this.oid == channel) {
     var obj;
 
     try {
@@ -128,9 +128,10 @@ Subscription.prototype.onMessage = function(channel, message){
 
     if (Object.keys(qry).length) {
       if (this.payload) {
+        debug('buffering op %j until payload is obtained', obj);
         this.emit('op', obj);
       } else {
-        // if the payload is not set yet, we buffer op events
+        debug('buffering op %j until payload is obtained', obj);
         this.ops.push(obj);
       }
     } else {
