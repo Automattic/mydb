@@ -35,6 +35,7 @@ exports.Subscription = Subscription;
  *  - `redis` main redis client
  *  - `redisSub` redis pub/sub mode client (or uri)
  *  - `mongo` monk client (or uri)
+ *  - `engine` options to pass to engine.io
  *
  * @param {http.Server} http server to attach to
  * @param {Object} options
@@ -60,11 +61,11 @@ function Server(http, opts){
 
   // mongodb
   if ('object' != typeof opts.mongo) {
-    this.mongo = monk(opts.mongo || 'localhost/27017');
+    this.mongo = monk(opts.mongo || '127.0.0.1:27017/mydb');
   }
 
   this.http = http;
-  this.engine = engine.attach(http);
+  this.engine = engine.attach(http, opts.engine);
   this.engine.on('connection', this.onConnection.bind(this));
 }
 
