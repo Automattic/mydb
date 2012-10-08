@@ -19,6 +19,17 @@ var mongo = driver(process.env.MONGO_URI || 'localhost/mydb');
 var posts = mongo.get('posts');
 
 /**
+ * Helper to create express app.
+ */
+
+function create(){
+  return express()
+    .use(express.cookieParser())
+    .use(express.session({ secret: 'test' }))
+    .use(expose());
+}
+
+/**
  * Test.
  */
 
@@ -48,10 +59,7 @@ describe('mydb', function(){
 
   describe('exposing', function(){
     it('should expose docs', function(done){
-      var app = express()
-        .use(express.cookieParser())
-        .use(express.session({ secret: 'test' }))
-        .use(expose());
+      var app = create();
       var httpServer = http(app);
       var mydb = server(httpServer);
 
