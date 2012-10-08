@@ -75,7 +75,7 @@ Subscription.prototype.subscribe = function(){
   debug('subscribing to redis ops for "%s"', this.id);
   var self = this;
   this.readyState = 'subscribing';
-  this.sub.subscribe(this.id, function(err){
+  this.sub.subscribe(this.oid, function(err){
     if (err) return self.emit('error', err);
     self.readyState = 'subscribed';
     self.fetch();
