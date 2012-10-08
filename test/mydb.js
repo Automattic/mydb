@@ -102,6 +102,34 @@ describe('mydb', function(){
         });
       });
     });
+
+    it('should emit custom op events', function(done){
+      var app = create();
+      var httpServer = http(app);
+      var mydb = server(httpServer);
+      var count = 2;
+
+      posts.insert({ test: 'test' });
+
+      app.get('/doc', function(req, res){
+        res.send(posts.findOne({ test: 'test' }));
+      });
+
+      httpServer.listen(function(){
+        var db = client('ws://localhost:' + httpServer.address().port);
+        var doc = db.get('/doc', function(){
+          doc.on('likes', function(v){
+            expect(v).to.eql(['tobi']);
+            --count || done();
+          });
+          doc.on('likes', 'push', function(v){
+            expect(v).to.eql('tobi');
+            --count || done();
+          });
+          posts.update(doc._id, { $push: { likes: 'tobi' } });
+        });
+      });
+    });
   });
 
 });
