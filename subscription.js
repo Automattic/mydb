@@ -46,8 +46,8 @@ Subscription.prototype.__proto__ = EventEmitter.prototype;
  */
 
 Subscription.prototype.get = function(){
+  debug('getting details for "%s"', this.id);
   var self = this;
-  debug('getting details for subscription "%s"', this.id);
   this.readyState = 'discoverying';
   this.redis.get(this.id, function(err, data){
     if (err) return self.emit('error', err);
@@ -72,6 +72,7 @@ Subscription.prototype.get = function(){
  */
 
 Subscription.prototype.subscribe = function(){
+  debug('subscribing to redis ops for "%s"', this.id);
   var self = this;
   this.readyState = 'subscribing';
   this.sub.subscribe(this.id, function(err){
@@ -89,9 +90,10 @@ Subscription.prototype.subscribe = function(){
  */
 
 Subscription.prototype.fetch = function(){
+  debug('fetching payload for "%s.%s"', this.col, this.oid);
   var opts = { fields: this.fields };
   var self = this;
-  this.mongo.get(this.col).findById(this.id, opts, function(err, doc){
+  this.mongo.get(this.col).findById(this.oid, opts, function(err, doc){
     if ('subscribed' != self.readyState) return;
     if (err) return self.emit('error', err);
     if (!doc) {
@@ -160,6 +162,7 @@ Subscription.prototype.emitOps = function(){
 
 Subscription.prototype.destroy = function(){
   if ('subscribing' == this.readyState || 'subscribed' == this.readyState) {
+    debug('destroying "%s" (state: %s)', this.id, this.readyState);
     var self = this;
     this.readyState = 'unsubscribing';
     this.ops = null;
