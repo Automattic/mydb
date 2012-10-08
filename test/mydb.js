@@ -46,4 +46,29 @@ describe('mydb', function(){
     });
   });
 
+  describe('exposing', function(){
+    it('should expose docs', function(done){
+      var app = express()
+        .use(express.cookieParser())
+        .use(express.session({ secret: 'test' }))
+        .use(expose());
+      var httpServer = http(app);
+      var mydb = server(httpServer);
+
+      posts.insert({ title: 'Test' });
+
+      app.get('/somedoc', function(req, res){
+        res.send(posts.findOne({ title: 'Test' }));
+      });
+
+      httpServer.listen(function(){
+        var db = client('ws://localhost:' + httpServer.address().port);
+        var doc = db.get('/somedoc', function(){
+          expect(doc.title).to.be('Test');
+          done();
+        });
+      });
+    });
+  });
+
 });
