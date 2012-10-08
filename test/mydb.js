@@ -130,6 +130,48 @@ describe('mydb', function(){
         });
       });
     });
+
+    it('should send partial data', function(){
+      var app = create();
+      var httpServer = http(app);
+      var mydb = server(httpServer);
+      var count = 2;
+
+      posts.insert({ test: 'test', likes: ['a'], dislikes: ['a'] });
+
+      app.get('/doc', function(req, res){
+        res.send(posts.findOne({ test: 'test' }, '-dislikes'));
+      });
+
+      httpServer.listen(function(){
+        var db = client('ws://localhost:' + httpServer.address().port);
+        var doc = db.get('/doc', function(){
+          expect(doc.test).to.be('test');
+          expect(doc.likes).to.eql(['a']);
+          expect(doc.dislikes).to.be(undefined);
+
+          posts.update(doc._id, { $push: { likes: 'b', dislikes: 'b' } });
+          posts.update(doc._id, { $set: { test: 'a' } });
+
+          var updatedLikes = false;
+
+          posts.on('likes', 'push', function(v){
+            expect(v).to.be('b');
+            updatedLikes = true;
+          });
+
+          posts.on('dislikes', 'push', function(){
+            done(new Error('Unexpected'));
+          });
+
+          doc.on('test', function(){
+            expect(doc.likes).to.eql(['a', 'b']);
+            expect(doc.dislikes).to.be(undefined);
+            expect(updatedLikes).to.be(true);
+          });
+        });
+      });
+    });
   });
 
 });
