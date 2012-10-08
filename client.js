@@ -186,5 +186,5 @@ Client.prototype.onOp = function(sub, obj){
  */
 
 Client.prototype.onPayload = function(sub, obj){
-  this.send({ e: 'p', i: sub.id, d: obj.d });
+  this.send({ e: 'p', i: sub.id, d: obj });
 };
