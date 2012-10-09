@@ -8,6 +8,7 @@ var engine = require('engine.io')
   , monk = require('monk')
   , Client = require('./client')
   , Subscription = require('./subscription')
+  , EventEmitter = require('events').EventEmitter
   , debug = require('debug')('mydb');
 
 /**
@@ -70,6 +71,12 @@ function Server(http, opts){
 }
 
 /**
+ * Inherits from `EventEmitter`.
+ */
+
+Server.prototype.__proto__ = EventEmitter.prototype;
+
+/**
  * Called upon each connection.
  *
  * @param {Socket} engine.io socket
@@ -78,7 +85,8 @@ function Server(http, opts){
 
 Server.prototype.onConnection = function(socket){
   debug('initializing new client');
-  new Client(this, socket);
+  var client = new Client(this, socket);
+  this.emit('client', client);
 };
 
 /**
