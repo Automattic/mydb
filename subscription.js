@@ -172,6 +172,7 @@ Subscription.prototype.destroy = function(){
     this.sub.unsubscribe(this.id, function(err){
       if (err) return self.emit('error', err);
       self.readyState = 'unsubscribed';
+      self.emit('destroy');
     });
     this.sub.removeListener('message', this.onMessage);
   } else {
