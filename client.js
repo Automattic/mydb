@@ -4,6 +4,7 @@
  */
 
 var Subscription = require('./subscription')
+  , EventEmitter = require('events').EventEmitter
   , debug = require('debug')('mydb:client');
 
 /**
@@ -29,6 +30,12 @@ function Client(server, socket){
   socket.on('message', this.onMessage.bind(this));
   socket.on('close', this.onClose.bind(this));
 };
+
+/**
+ * Inherits from `EventEmitter`.
+ */
+
+Client.prototype.__proto__ = EventEmitter.prototype;
 
 /**
  * Tests if the client is writable.
@@ -114,6 +121,7 @@ Client.prototype.subscribe = function(id){
     self.onError(sub, err);
   });
   sub.on('destroy', this.onDestroy.bind(this, sub));
+  this.emit('subscription', sub);
 };
 
 /**
