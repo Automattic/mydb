@@ -96,6 +96,7 @@ Client.prototype.onPacket = function(packet){
 /**
  * Creates a subscription.
  *
+ * @param {String} id
  * @api private
  */
 
@@ -113,6 +114,22 @@ Client.prototype.subscribe = function(id){
     self.onError(sub, err);
   });
   sub.on('destroy', this.onDestroy.bind(this, sub));
+};
+
+/**
+ * Destroys a subscription.
+ *
+ * @param {String} id
+ * @api private
+ */
+
+Client.prototype.unsubscribe = function(id){
+  var sub = this.subscriptions[id];
+  if (sub) {
+    sub.destroy();
+  } else {
+    debug('subscription "%s" not found for destroying');
+  }
 };
 
 /**
