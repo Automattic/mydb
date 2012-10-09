@@ -215,6 +215,81 @@ describe('mydb', function(){
         });
       });
     });
+
+    it('should get a field when the document is ready', function(done){
+      var app = create();
+      var httpServer = http(app);
+      var mydb = server(httpServer);
+
+      posts.insert({ tobi: 'a' });
+
+      app.get('/', function(req, res){
+        res.send(posts.findOne({ tobi: 'a' }));
+      });
+
+      httpServer.listen(function(){
+        var db = client('ws://localhost:' + httpServer.address().port);
+        var doc = db.get('/');
+        doc.get('tobi', function(v){
+          expect(v).to.be('a');
+          expect(doc.tobi).to.be('a');
+          done();
+        });
+      });
+    });
+
+    it('should get a field when a ready and subsequent changes', function(done){
+      var app = create();
+      var httpServer = http(app);
+      var mydb = server(httpServer);
+
+      posts.insert({ tobi: '£' });
+
+      app.get('/', function(req, res){
+        res.send(posts.findOne({ tobi: '£' }));
+      });
+
+      httpServer.listen(function(){
+        var db = client('ws://localhost:' + httpServer.address().port);
+        var doc = db.get('/');
+        var i = 0;
+        var vals = ['£', 'pp'];
+        doc.upon('tobi', function(v){
+          expect(v).to.be(vals[i++]);
+          if (i == 2) done();
+        });
+        doc.ready(function(){
+          posts.update(doc._id, { $set: { tobi: 'pp' } });
+        });
+      });
+    });
+
+    it('should loop through existing properties and new ones', function(done){
+      var app = create();
+      var httpServer = http(app);
+      var mydb = server(httpServer);
+
+      posts.insert({ jane_loki: ['a', 'b', 'c'], tests: 'array' });
+
+      app.get('/', function(req, res){
+        res.send(posts.findOne({ tests: 'array' }));
+      });
+
+      httpServer.listen(function(){
+        var db = client('ws://localhost:' + httpServer.address().port);
+        var doc = db.get('/');
+        var i = 0;
+        var vals = ['a', 'b', 'c', 'd', 'e'];
+        doc.each('jane_loki', function(v){
+          expect(v).to.be(vals[i++]);
+          if (i == 5) done();
+        });
+        doc.ready(function(){
+          posts.update(doc._id, { $push: { jane_loki: 'd' } });
+          posts.update(doc._id, { $push: { jane_loki: 'e' } });
+        });
+      });
+    });
   });
 
 });
