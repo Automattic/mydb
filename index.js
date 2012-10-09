@@ -49,19 +49,22 @@ function Server(http, opts){
   opts = opts || {};
 
   // redis
+  this.redis = opts.redis;
   if ('object' != typeof opts.redis) {
-    var uri = parse(opts.redis || 'localhost:6379');
+    var uri = parse(this.redis || 'localhost:6379');
     this.redis = redis(uri.port, uri.host);
   }
 
   // redis sub
-  if ('object' != typeof opts.redisSub) {
-    var uri = parse(opts.redisSub || 'localhost:6379');
+  this.redisSub = opts.redisSub;
+  if ('object' != typeof this.redisSub) {
+    var uri = parse(this.redisSub || 'localhost:6379');
     this.redisSub = redis(uri.port, uri.host);
   }
 
   // mongodb
-  if ('object' != typeof opts.mongo) {
+  this.mongo = opts.mongo;
+  if ('object' != typeof this.mongo) {
     this.mongo = monk(opts.mongo || '127.0.0.1:27017/mydb');
   }
 
