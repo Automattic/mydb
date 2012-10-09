@@ -127,6 +127,7 @@ Subscription.prototype.onMessage = function(channel, message){
     var qry = minify(obj[1], this.fields);
 
     if (Object.keys(qry).length) {
+      obj[1] = qry;
       if (this.payload) {
         debug('buffering op %j until payload is obtained', obj);
         this.emit('op', obj);
