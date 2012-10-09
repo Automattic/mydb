@@ -173,6 +173,48 @@ describe('mydb', function(){
         });
       });
     });
+
+    it('should destroy a subscription', function(done){
+      var app = create();
+      var httpServer = http(app);
+      var mydb = server(httpServer);
+
+      posts.insert({ haha: 'test' });
+      posts.insert({ haha: 'test2' });
+
+      app.get('/', function(req, res){
+        res.send(posts.findOne({ haha: 'test' }));
+      });
+
+      app.get('/test', function(req, res){
+        res.send(posts.findOne({ haha: 'test2' }));
+      });
+
+      httpServer.listen(function(){
+        var db = client('ws://localhost:' + httpServer.address().port);
+        var doc1 = db.get('/', function(){
+          expect(doc1.haha).to.be('test');
+          doc1.on('haha', function(){
+            done(new Error('Unexpected'));
+          });
+          var doc2 = db.get('/test', function(){
+            expect(doc2.haha).to.be('test2');
+            doc2.on('haha', function(v){
+              expect(v).to.be('woot2');
+              done();
+            });
+            doc1.destroy(function(){
+              // we send two operations in a row
+              // we complete the test upon getting the doc2 change
+              // so that we ensure doc1 got ignored by the destroyed
+              // subscription
+              posts.update(doc1._id, { $set: { haha: 'woot1' } });
+              posts.update(doc2._id, { $set: { haha: 'woot2' } });
+            });
+          });
+        });
+      });
+    });
   });
 
 });
