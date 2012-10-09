@@ -9,7 +9,8 @@ var http = require('http').Server
   , expect = require('expect.js')
   , expose = require('mydb-expose')
   , client = require('mydb-client')
-  , driver = require('mydb-driver');
+  , driver = require('mydb-driver')
+  , request = require('supertest');
 
 /**
  * Connect to MongoDB.
@@ -198,6 +199,7 @@ describe('mydb', function(){
             done(new Error('Unexpected'));
           });
           var doc2 = db.get('/test', function(){
+            expect(doc2._id).to.not.be(doc1._id);
             expect(doc2.haha).to.be('test2');
             doc2.on('haha', function(v){
               expect(v).to.be('woot2');
@@ -288,6 +290,80 @@ describe('mydb', function(){
           posts.update(doc._id, { $push: { jane_loki: 'd' } });
           posts.update(doc._id, { $push: { jane_loki: 'e' } });
         });
+      });
+    });
+
+    it('should do a single unique subscription on the server', function(done){
+      var app = create();
+      var httpServer = http(app);
+      var mydb = server(httpServer);
+
+      posts.insert({ some_random: 'stuff' });
+
+      app.get('/', function(req, res){
+        res.send(200);
+      });
+
+      app.get('/1', function(req, res){
+        res.send(posts.findOne({ some_random: 'stuff' }));
+      });
+
+      app.get('/2', function(req, res){
+        res.send(posts.findOne({ some_random: 'stuff' }));
+      });
+
+      app.get('/3', function(req, res){
+        res.send(posts.findOne({ some_random: 'stuff' }));
+      });
+
+      httpServer.listen(function(){
+        request(app)
+        .get('/')
+        .end(function(err, res){
+          if (err) return done(err);
+          var db = client('ws://localhost:' + httpServer.address().port, {
+            headers: {
+              Cookie: res.headers['set-cookie'][0].split(';')[0]
+            }
+          });
+          var total = 3;
+
+          var doc1 = db.get('/1', function(){
+            --total || subscribed();
+          });
+          var doc2 = db.get('/2', function(){
+            --total || subscribed();
+          });
+          var doc3 = db.get('/3', function(){
+            --total || subscribed();
+          });
+
+          var subscriptions = 0;
+          var shouldDestroy = false;
+
+          mydb.on('client', function(client){
+            client.on('subscription', function(sub){
+              subscriptions++;
+              sub.on('destroy', function(){
+                expect(shouldDestroy).to.be(true);
+                done();
+              });
+              if (subscriptions > 1) done(new Error('Unexpected'));
+            });
+          });
+          function subscribed(){
+            expect(subscriptions).to.be(1);
+            doc1.destroy();
+            setTimeout(function(){
+              doc2.destroy();
+              setTimeout(function(){
+                shouldDestroy = true;
+                doc3.destroy();
+              }, 50);
+            }, 50);
+          }
+        });
+
       });
     });
   });
