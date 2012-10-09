@@ -27,7 +27,7 @@ function create(){
   return express()
     .use(express.cookieParser())
     .use(express.session({ secret: 'test' }))
-    .use(expose());
+    .use(expose({ mongo: mongo }));
 }
 
 /**
@@ -363,7 +363,44 @@ describe('mydb', function(){
             }, 50);
           }
         });
+      });
+    });
 
+    it('session', function(done){
+      var app = create();
+      var httpServer = http(app);
+      var mydb = server(httpServer);
+
+      app.get('/', function(req, res){
+        res.send(200);
+      });
+
+      app.post('/test', function(req, res){
+        req.session.set('testing', 'something');
+        res.send(200);
+      });
+
+      httpServer.listen(function(){
+        request(app)
+        .get('/')
+        .end(function(err, res){
+          var cookie = res.headers['set-cookie'][0].split(';')[0];
+          var db = client('ws://localhost:' + httpServer.address().port, {
+            headers: { Cookie: cookie }
+          });
+          var doc = db.get('/session', function(){
+            request(app)
+            .post('/test')
+            .set('Cookie', cookie)
+            .end(function(err){
+              if (err) return done(err);
+            });
+          });
+          doc.on('testing', function(v){
+            expect(v).to.be('something');
+            done();
+          });
+        });
       });
     });
   });
