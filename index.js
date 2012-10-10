@@ -102,7 +102,7 @@ Server.prototype.onConnection = function(socket){
 
 function parse(uri){
   var pieces = uri.split(':');
+  var host = pieces.shift();
   var port = pieces.pop();
-  var host = pieces.pop();
   return { host: host, port: port };
 }
