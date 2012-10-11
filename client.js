@@ -191,6 +191,7 @@ Client.prototype.onDestroy = function(sub){
 
 Client.prototype.onClose = function(){
   this.destroy();
+  this.emit('close');
 };
 
 /**
