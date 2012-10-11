@@ -1,4 +1,9 @@
 
+1.0.4 / 2012-10-11
+==================
+
+  * client: remove `open` event (`Client` initialize upon `open`)
+
 1.0.3 / 2012-10-11
 ==================
 
