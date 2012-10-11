@@ -27,6 +27,7 @@ function Client(server, socket){
   this.subscriptions = {};
 
   // attach events
+  socket.on('open', this.onOpen.bind(this));
   socket.on('message', this.onMessage.bind(this));
   socket.on('close', this.onClose.bind(this));
 };
@@ -56,6 +57,16 @@ Client.prototype.open = function(){
 
 Client.prototype.send = function(obj){
   this.socket.send(JSON.stringify(obj));
+};
+
+/**
+ * Called when socket opens.
+ *
+ * @api private
+ */
+
+Client.prototype.onOpen = function(){
+  this.emit('open');
 };
 
 /**
