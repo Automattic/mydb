@@ -1,4 +1,9 @@
 
+1.0.9 / 2012-10-15
+==================
+
+  * subscription: avoid warning of max listeners
+
 1.0.8 / 2012-10-15
 ==================
 
