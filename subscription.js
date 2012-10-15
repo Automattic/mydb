@@ -25,6 +25,7 @@ function Subscription(server, id){
   this.server = server;
   this.redis = server.redis;
   this.sub = server.redisSub;
+  this.sub.setMaxListeners(0);
   this.mongo = server.mongo;
   this.id = id;
   this.get();
