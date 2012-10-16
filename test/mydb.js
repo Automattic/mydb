@@ -326,16 +326,20 @@ describe('mydb', function(){
               Cookie: res.headers['set-cookie'][0].split(';')[0]
             }
           });
-          var total = 3;
+          var total = 2;
 
-          var doc1 = db.get('/1', function(){
-            --total || subscribed();
-          });
-          var doc2 = db.get('/2', function(){
-            --total || subscribed();
-          });
-          var doc3 = db.get('/3', function(){
-            --total || subscribed();
+          var doc1 = db.get();
+          var doc2 = db.get();
+          var doc3 = db.get();
+
+          doc1.load('/1', function(){
+            // we make sure payload gets copied over
+            doc2.load('/2', function(){
+              --total || subscribed();
+            });
+            doc3.load('/3', function(){
+              --total || subscribed();
+            });
           });
 
           var subscriptions = 0;
@@ -353,6 +357,12 @@ describe('mydb', function(){
           });
           function subscribed(){
             expect(subscriptions).to.be(1);
+
+            // we make sure payload got copied over
+            expect(doc1.some_random).to.be('stuff');
+            expect(doc2.some_random).to.be('stuff');
+            expect(doc3.some_random).to.be('stuff');
+
             doc1.destroy();
             setTimeout(function(){
               doc2.destroy();
