@@ -137,7 +137,7 @@ Subscription.prototype.onMessage = function(channel, message){
       obj[1] = qry;
 
       if (this.payload) {
-        debug('buffering op %j until payload is obtained', obj);
+        debug('emitting op %j', obj);
         this.emit('op', obj);
       } else {
         debug('buffering op %j until payload is obtained', obj);
