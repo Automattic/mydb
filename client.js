@@ -160,8 +160,8 @@ Client.prototype.destroy = function(){
  * @api private
  */
 
-Client.prototype.onError = function(){
-  debug('subscription error');
+Client.prototype.onError = function(err){
+  debug('subscription error %j', err);
   this.destroy();
   if (this.open()) {
     debug('telling socket to close');
