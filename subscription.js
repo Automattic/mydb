@@ -51,6 +51,7 @@ Subscription.prototype.get = function(){
   var self = this;
   this.readyState = 'discoverying';
   this.redis.get(this.id, function(err, data){
+    if (!data) err = new Error('No subscription "' + self.id + '"');
     if (err) return self.emit('error', err);
     var obj;
     try {
