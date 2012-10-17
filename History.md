@@ -1,4 +1,9 @@
 
+1.1.1 / 2012-10-16
+==================
+
+  * subscription: added error handling for unknown ids
+
 1.1.0 / 2012-10-15
 ==================
 
