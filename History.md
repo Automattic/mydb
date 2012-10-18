@@ -1,4 +1,11 @@
 
+1.1.6 / 2012-10-18
+==================
+
+  * package: bumped `mydb-client`
+  * test: improved multiple docs with same subscription tests
+  * subscription: fix instrumentation
+
 1.1.5 / 2012-10-17
 ==================
 
