@@ -298,7 +298,7 @@ describe('mydb', function(){
       var httpServer = http(app);
       var mydb = server(httpServer);
 
-      posts.insert({ some_random: 'stuff' });
+      posts.insert({ some_random: 'stuff', arr: [] });
 
       app.get('/', function(req, res){
         res.send(200);
@@ -363,14 +363,24 @@ describe('mydb', function(){
             expect(doc2.some_random).to.be('stuff');
             expect(doc3.some_random).to.be('stuff');
 
-            doc1.destroy();
-            setTimeout(function(){
-              doc2.destroy();
+            posts.update(doc1._id, { $push: { arr: 'test' } });
+
+            // we make sure payloads are cloned, so each array has
+            // to have only one item
+            doc3.on('arr', function(){
+              expect(doc1.arr).to.eql(['test']);
+              expect(doc2.arr).to.eql(['test']);
+              expect(doc3.arr).to.eql(['test']);
+
+              doc1.destroy();
               setTimeout(function(){
-                shouldDestroy = true;
-                doc3.destroy();
+                doc2.destroy();
+                setTimeout(function(){
+                  shouldDestroy = true;
+                  doc3.destroy();
+                }, 50);
               }, 50);
-            }, 50);
+            });
           }
         });
       });
