@@ -16,7 +16,7 @@
     "supertest": "*",
     "express": "3.0.0rc4",
     "mydb-driver": "git+ssh://git@github.com:LearnBoost/mydb-driver.git#0.3.1",
-    "mydb-client": "git+ssh://git@github.com:LearnBoost/mydb-client.git#1.1.4",
+    "mydb-client": "git+ssh://git@github.com:LearnBoost/mydb-client.git#1.1.5",
     "mydb-expose": "git+ssh://git@github.com:LearnBoost/mydb-expose.git#0.4.0"
   }
 }
