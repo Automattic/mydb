@@ -1,4 +1,10 @@
 
+1.1.7 / 2012-10-19
+==================
+
+  * package: bumped `mydb-client`
+  * test: added `$rename` tests
+
 1.1.6 / 2012-10-18
 ==================
 
