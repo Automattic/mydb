@@ -425,4 +425,33 @@ describe('mydb', function(){
     });
   });
 
+  describe('pseudo-events', function(){
+    it('$rename', function(done){
+      var app = create();
+      var httpServer = http(app);
+      var mydb = server(httpServer);
+
+      posts.insert({ testing: 'rename' });
+
+      app.get('/', function(req, res){
+        res.send(posts.findOne({ testing: 'rename' }));
+      });
+
+      httpServer.listen(function(){
+        var db = client('ws://localhost:' + httpServer.address().port);
+        var total = 2;
+        var doc = db.get('/', function(){
+          posts.update(doc._id, { $rename: { testing: 'woot' } });
+          doc.on('testing', 'unset', function(){
+            --total || done();
+          });
+          doc.on('woot', function(v){
+            expect(v).to.be('rename');
+            --total || done();
+          });
+        });
+      });
+    });
+  });
+
 });
