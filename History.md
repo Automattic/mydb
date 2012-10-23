@@ -1,4 +1,10 @@
 
+1.1.9 / 2012-10-23
+==================
+
+  * package: bumped `engine.io`
+  * package: bumped `mydb-client`
+
 1.1.8 / 2012-10-19
 ==================
 
