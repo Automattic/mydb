@@ -161,12 +161,8 @@ Client.prototype.destroy = function(){
  */
 
 Client.prototype.onError = function(sub, err){
-  debug('subscription error %j', err);
-  this.destroy();
-  if (this.open()) {
-    debug('telling socket to close');
-    this.socket.close();
-  }
+  debug('subscription "%s" error %s', sub.id, err.stack);
+  this.emit('error', err, sub);
 };
 
 /**
