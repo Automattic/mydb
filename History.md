@@ -1,4 +1,9 @@
 
+1.1.12 / 2012-10-24
+===================
+
+  * subscription: switch to one redis client per subscription
+
 1.1.11 / 2012-10-24
 ==================
 
