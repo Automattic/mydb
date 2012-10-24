@@ -97,10 +97,13 @@ Subscription.prototype.fetch = function(){
   var self = this;
   this.mongo.get(this.col).findById(this.oid, opts, function(err, doc){
     if ('subscribed' != self.readyState) return;
-    if (err) return self.emit('error', err);
     if (!doc) {
-      var err = 'Document "' + self.col + '.' + self.id + '" not found';
-      return self.emit('error', new Error(err));
+      var msg = 'Document "' + self.col + '.' + self.id + '" not found';
+      err = new Error(msg);
+    }
+    if (err) {
+      self.unsubscribe();
+      return self.emit('error', err);
     }
     debug('retrieved document "%s.%s"', self.col, self.id);
     self.payload = doc;
