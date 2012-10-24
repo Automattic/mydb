@@ -1,4 +1,10 @@
 
+1.1.11 / 2012-10-24
+==================
+
+  * client: don't destroy everything upon error
+  * subscription: unsubscribe from redis upon error
+
 1.1.10 / 2012-10-23
 ===================
 
