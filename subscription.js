@@ -4,6 +4,7 @@
  */
 
 var EventEmitter = require('events').EventEmitter
+  , redis = require('redis').createClient
   , minify = require('mongo-minify')
   , debug = require('debug')('mydb:subscription');
 
@@ -24,8 +25,7 @@ module.exports = Subscription;
 function Subscription(server, id){
   this.server = server;
   this.redis = server.redis;
-  this.sub = server.redisSub;
-  this.sub.setMaxListeners(0);
+  this.sub = clone(server.redisSub);
   this.mongo = server.mongo;
   this.id = id;
   this.get();
@@ -180,13 +180,22 @@ Subscription.prototype.destroy = function(){
     this.readyState = 'unsubscribing';
     this.ops = null;
     this.payload = null;
-    this.sub.unsubscribe(this.id, function(err){
-      if (err) return self.emit('error', err);
-      self.readyState = 'unsubscribed';
-      self.emit('destroy');
-    });
-    this.sub.removeListener('message', this.onMessage);
+    this.sub.end();
+    this.readyState = 'unsubscribed';
+    this.emit('destroy');
   } else {
     debug('ignoring destroy - current state is "%s"', this.readyState);
   }
 };
+
+/**
+ * Utility to clone a redis connection.
+ *
+ * @param {RedisClient} client
+ * @return {RedisClient} cloned client
+ * @api private
+ */
+
+function clone(client){
+  return redis(client.stream.remotePort, client.stream.remoteAddress);
+}
