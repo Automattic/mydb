@@ -31,7 +31,6 @@ function Subscription(server, id){
   this.get();
   this.ops = [];
   this.onMessage = this.onMessage.bind(this);
-  this.once('payload', this.emitOps.bind(this));
 }
 
 /**
@@ -108,6 +107,7 @@ Subscription.prototype.fetch = function(){
     debug('retrieved document "%s.%s"', self.col, self.id);
     self.payload = doc;
     self.emit('payload', doc);
+    self.emitOps();
   });
 };
 
