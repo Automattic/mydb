@@ -1,4 +1,10 @@
 
+1.1.14 / 2012-10-25
+===================
+
+  * subscription: fix potential `payload`/`op` events ordering issue
+  * package: bumped `mydb-client`
+
 1.1.13 / 2012-10-25
 ===================
 
