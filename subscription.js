@@ -101,7 +101,7 @@ Subscription.prototype.fetch = function(){
       err = new Error(msg);
     }
     if (err) {
-      self.unsubscribe();
+      self.destroy();
       return self.emit('error', err);
     }
     debug('retrieved document "%s.%s"', self.col, self.id);
