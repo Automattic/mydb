@@ -498,7 +498,7 @@ describe('mydb', function(){
         var doc = db.get('/', function(){
           doc.destroy(function(){
             doc.load('/2', function(){
-              expect(doc.a).to.be(null);
+              expect(doc.a).to.be(undefined);
               expect(doc.shouldbe).to.be('there');
               done();
             });
