@@ -452,6 +452,30 @@ describe('mydb', function(){
         });
       });
     });
+
+    it('$pull with many matches', function(done){
+      var app = create();
+      var httpServer = http(app);
+      var mydb = server(httpServer);
+
+      posts.insert({ letspull: [1,2,1], pull: 'emall' });
+
+      app.get('/', function(req, res){
+        res.send(posts.findOne({ pull: 'emall' }));
+      });
+
+      httpServer.listen(function(){
+        var db = client('ws://localhost:' + httpServer.address().port);
+        var doc = db.get('/', function(){
+          var total = 2;
+          posts.update(doc._id, { $pull: { letspull: 1 } });
+          doc.on('letspull', 'pull', function(v){
+            expect(v).to.be(1);
+            --total || done();
+          });
+        });
+      });
+    });
   });
 
 });
