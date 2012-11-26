@@ -1,4 +1,10 @@
 
+1.1.17 / 2012-11-26
+===================
+
+  * package: bumped `mydb-client` for tests
+  * test: fixed test
+
 1.1.16 / 2012-11-26
 ===================
 
