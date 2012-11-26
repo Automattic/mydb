@@ -1,4 +1,10 @@
 
+1.1.16 / 2012-11-26
+===================
+
+  * test: added test for doc cleanup on `destroy`
+  * test: added test for `$pull` events
+
 1.1.15 / 2012-11-06
 ===================
 
