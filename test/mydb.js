@@ -476,6 +476,36 @@ describe('mydb', function(){
         });
       });
     });
+
+    it('should wipe doc on destroy', function(done){
+      var app = create();
+      var httpServer = http(app);
+      var mydb = server(httpServer);
+
+      posts.insert({ a: 'b', shouldbe: 'gone' });
+      posts.insert({ shouldbe: 'there' });
+
+      app.get('/', function(req, res){
+        res.send(posts.findOne({ shouldbe: 'gone' }));
+      });
+
+      app.get('/2', function(req, res){
+        res.send(posts.findOne({ shouldbe: 'there' }));
+      });
+
+      httpServer.listen(function(){
+        var db = client('ws://localhost:' + httpServer.address().port);
+        var doc = db.get('/', function(){
+          doc.destroy(function(){
+            doc.load('/2', function(){
+              expect(doc.a).to.be(null);
+              expect(doc.shouldbe).to.be('there');
+              done();
+            });
+          });
+        });
+      });
+    });
   });
 
 });
