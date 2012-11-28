@@ -221,13 +221,19 @@ describe('mydb', function(){
               expect(v).to.be('woot2');
               done();
             });
+
+            var id1 = doc1._id;
+            var id2 = doc2._id;
+
             doc1.destroy(function(){
+              expect(doc1._id).to.be(undefined);
+
               // we send two operations in a row
               // we complete the test upon getting the doc2 change
               // so that we ensure doc1 got ignored by the destroyed
               // subscription
-              posts.update(doc1._id, { $set: { haha: 'woot1' } });
-              posts.update(doc2._id, { $set: { haha: 'woot2' } });
+              posts.update(id1, { $set: { haha: 'woot1' } });
+              posts.update(id2, { $set: { haha: 'woot2' } });
             });
           });
         });
