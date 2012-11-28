@@ -244,6 +244,33 @@ describe('mydb', function(){
       var app = create();
       var httpServer = http(app);
       var mydb = server(httpServer);
+
+      posts.insert({ x: 'y' });
+
+      app.get('/', function(req, res){
+        res.send(posts.findOne({ x: 'y' }));
+      });
+
+      httpServer.listen(function(){
+        var db = client('ws://localhost:' + httpServer.address().port);
+        var doc1 = db.get('/', function(){
+          done(new Error('Nope'));
+        });
+        doc1.ready(function(){
+          done(new Error('Nope'));
+        });
+        doc1.destroy();
+        doc1.load('/', function(){
+          expect(doc1.x).to.be('y');
+          done();
+        });
+      });
+    });
+
+    it('should destroy listeners', function(done){
+      var app = create();
+      var httpServer = http(app);
+      var mydb = server(httpServer);
       httpServer.listen(function(){
         var db = client('ws://localhost:' + httpServer.address().port);
         var doc1 = db.get('/');
