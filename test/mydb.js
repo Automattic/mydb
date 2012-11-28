@@ -234,6 +234,21 @@ describe('mydb', function(){
       });
     });
 
+    it('should destroy in unloaded state', function(done){
+      var app = create();
+      var httpServer = http(app);
+      var mydb = server(httpServer);
+      httpServer.listen(function(){
+        var db = client('ws://localhost:' + httpServer.address().port);
+        var doc1 = db.get('/');
+        expect(doc1.$readyState()).to.be('unloaded');
+        doc1.destroy(function(){
+          expect(doc1.$readyState()).to.be('unloaded');
+          done();
+        });
+      });
+    });
+
     it('should get a field when the document is ready', function(done){
       var app = create();
       var httpServer = http(app);
