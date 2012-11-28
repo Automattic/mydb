@@ -79,6 +79,22 @@ describe('mydb', function(){
       });
     });
 
+    it('should handle errors', function(done){
+      var app = create();
+      var httpServer = http(app);
+      var mydb = server(httpServer);
+
+      httpServer.listen(function(){
+        var db = client('ws://localhost:' + httpServer.address().port);
+        var doc = db.get('/wtf', function(err){
+          expect(err).to.be.an(Error);
+          expect(err.url).to.match(/\/wtf/);
+          expect(err.status).to.be(404);
+          done();
+        });
+      });
+    });
+
     it('should emit doc events', function(done){
       var app = create();
       var httpServer = http(app);
