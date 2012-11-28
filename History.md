@@ -1,4 +1,9 @@
 
+1.1.19 / 2012-11-28
+===================
+
+  * package: bumped `mydb-client` for error handling fix for browser
+
 1.1.18 / 2012-11-28
 ===================
 
