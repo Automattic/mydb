@@ -1,4 +1,10 @@
 
+1.1.18 / 2012-11-28
+===================
+
+  * package: bumped `mydb-client` for error handling support
+  * test: added error handling test
+
 1.1.17 / 2012-11-26
 ===================
 
