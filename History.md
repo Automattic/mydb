@@ -1,4 +1,12 @@
 
+1.2.0 / 2012-11-28
+==================
+
+  * package: bumped `mydb-client` with `destroy` and `load` fixes
+  * test: added test for ignoring load callbacks and ready events
+  * test: make sure `destroy` wipes keys
+  * test: added `destroy` test in `unloaded` state
+
 1.1.19 / 2012-11-28
 ===================
 
