@@ -570,6 +570,34 @@ describe('mydb', function(){
         });
       });
     });
+
+    it('should override existing loading state', function(done){
+      var app = create();
+      var httpServer = http(app);
+      var mydb = server(httpServer);
+
+      posts.insert({ a: 'tale' });
+      posts.insert({ a: 'different tale' });
+
+      app.get('/', function(req, res){
+        res.send(posts.findOne({ a: 'tale' }));
+      });
+
+      app.get('/2', function(req, res){
+        res.send(posts.findOne({ a: 'different tale' }));
+      });
+
+      httpServer.listen(function(){
+        var db = client('ws://localhost:' + httpServer.address().port);
+        var doc = db.get('/', function(){
+          done(new Error('Unexpected'));
+        });
+        doc.load('/2', function(){
+          expect(doc.a).to.be('different tale');
+          done();
+        });
+      });
+    });
   });
 
 });
