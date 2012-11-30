@@ -1,4 +1,10 @@
 
+1.2.2 / 2012-11-30
+==================
+
+  * package: bumped `mydb-client` to fix subscription re-using
+  * test: added test for two loads in a row
+
 1.2.1 / 2012-11-30
 ==================
 
