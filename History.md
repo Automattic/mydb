@@ -1,4 +1,9 @@
 
+1.2.1 / 2012-11-30
+==================
+
+  * package: bumped `mydb-client` for unsubscription improvements
+
 1.2.0 / 2012-11-28
 ==================
 
