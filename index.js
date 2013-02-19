@@ -149,14 +149,13 @@ Server.prototype.subscribe = function(){
     var data = JSON.parse(packet);
     var sid = data.s;
 
-    debug('captured subscription for socket id "%s"', sid);
-
-    var subscription = new Subscription(this, data.h, data.i, data.f);
+    var sub = new Subscription(self, data.h, data.i, data.f);
+    debug('subscription "%s" for socket id "%s"', sub.id, sid);
 
     if (self.ids[sid]) {
-      self.ids[sid].add(subscription);
+      self.ids[sid].add(sub);
     } else {
-      self.buffer(sid, subscription);
+      self.buffer(sid, sub);
     }
   });
 };
