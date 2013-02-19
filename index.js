@@ -3,13 +3,13 @@
  * Module dependencies.
  */
 
-var engine = require('engine.io')
-  , redis = require('redis').createClient
-  , monk = require('monk')
-  , Client = require('./client')
-  , Subscription = require('./subscription')
-  , EventEmitter = require('events').EventEmitter
-  , debug = require('debug')('mydb');
+var engine = require('engine.io');
+var redis = require('redis').createClient;
+var url = require('url');
+var Client = require('./client');
+var Subscription = require('./subscription');
+var EventEmitter = require('events').EventEmitter;
+var debug = require('debug')('mydb');
 
 /**
  * Module exports.
@@ -34,8 +34,7 @@ exports.Subscription = Subscription;
  *
  * Options
  *  - `redis` main redis client
- *  - `redisSub` redis pub/sub mode client (or uri)
- *  - `mongo` monk client (or uri)
+ *  - `subTimeout` subscription timeout if no client connects (`60000`)
  *  - `engine` options to pass to engine.io
  *
  * @param {http.Server} http server to attach to
