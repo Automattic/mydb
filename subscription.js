@@ -49,7 +49,7 @@ Subscription.prototype.__proto__ = EventEmitter.prototype;
  */
 
 Subscription.prototype.subscribe = function(){
-  debug('subscribing to redis ops for "%s"', this.id);
+  debug('subscribing to redis ops for "%s" (oid: %s)', this.id, this.oid);
   var self = this;
   this.readyState = 'subscribing';
 
