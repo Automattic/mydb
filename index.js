@@ -108,6 +108,29 @@ Server.prototype.onConnection = function(socket){
 };
 
 /**
+ * Called upon client close.
+ *
+ * @param {Client} client
+ * @api private
+ */
+
+Server.prototype.onclose = function(client){
+  var id = client.id;
+  debug('client "%s" close', id);
+
+  // destroy pending subscriptions
+  if (this.pending[id]) {
+    debug('destroying pending subscriptions');
+    this.pending[id].forEach(function(sus){
+      sus.destroy();
+    });
+    delete this.pending[id];
+  }
+
+  // remove from list of open clients
+  delete this.ids[id];
+};
+/**
  * Connection URI parsing utility.
  *
  * @param {String} uri
@@ -120,4 +143,17 @@ function parse(uri){
   var host = pieces.shift();
   var port = pieces.pop();
   return { host: host, port: port };
+}
+
+/**
+ * Utility to clone a redis connection.
+ *
+ * @param {RedisClient} client
+ * @return {RedisClient} cloned client
+ * @api private
+ */
+
+function clone(client){
+  var stream = client.stream;
+  return redis(stream.remotePort, stream.remoteAddress);
 }
