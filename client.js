@@ -232,13 +232,3 @@ Client.prototype.onClose = function(){
 Client.prototype.onOp = function(sub, obj){
   this.send({ e: 'o', i: sub.id, d: obj });
 };
-
-/**
- * Writes the payload to the client.
- *
- * @api private
- */
-
-Client.prototype.onPayload = function(sub, obj){
-  this.send({ e: 'p', i: sub.id, d: obj });
-};
