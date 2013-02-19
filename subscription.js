@@ -3,10 +3,10 @@
  * Module dependencies.
  */
 
-var EventEmitter = require('events').EventEmitter
-  , redis = require('redis').createClient
-  , minify = require('mongo-minify')
-  , debug = require('debug')('mydb:subscription');
+var EventEmitter = require('events').EventEmitter;
+var redis = require('redis').createClient;
+var minify = require('mongo-minify');
+var debug = require('debug')('mydb:subscription');
 
 /**
  * Module exports.
