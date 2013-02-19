@@ -57,15 +57,19 @@ function Server(http, opts){
   // subscription timeout
   this.subTimeout = null == opts.subTimeout ? 60000 : opts.subTimeout;
 
-  // mongodb
-  this.mongo = opts.mongo;
-  if ('object' != typeof this.mongo) {
-    this.mongo = monk(opts.mongo || '127.0.0.1:27017/mydb');
-  }
+  // sids
+  this.ids = {};
 
+  // pending subscriptions
+  this.pending = {};
+
+  // initialize engine server
   this.http = http;
   this.engine = engine.attach(http, opts.engine);
   this.engine.on('connection', this.onConnection.bind(this));
+
+  // capture SUBSCRIBE packets
+  this.subscribe();
 }
 
 /**
