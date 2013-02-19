@@ -6,8 +6,8 @@
   "dependencies": {
     "engine.io": "0.4.3",
     "redis": "0.8.1",
-    "monk": "0.5.0",
     "debug": "*",
+    "uid2": "*",
     "mongo-minify": "git+ssh://git@github.com:LearnBoost/mongo-minify.git#0.1.0"
   },
   "devDependencies": {
