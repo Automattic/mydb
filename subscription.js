@@ -80,7 +80,12 @@ Subscription.prototype.op = function(fn){
   this.emit('attach');
   this.on('op', fn);
   this.shouldBuffer = false;
-  this.emitOps();
+  if (this.ops.length) {
+    for (var i = 0; i < this.ops.length; i++) {
+      this.emit('op', this.ops[i]);
+    }
+    this.ops = [];
+  }
 };
 
 /**
@@ -91,6 +96,7 @@ Subscription.prototype.op = function(fn){
 
 Subscription.prototype.onmessage = function(channel, message){
   if (this.oid == channel) {
+    debug('captured operation for %s (oid: %s)', this.id, this.oid);
     var obj;
 
     try {
@@ -121,21 +127,6 @@ Subscription.prototype.onmessage = function(channel, message){
     } else {
       debug('operation %j ignored minified with %j', obj[1], this.fields);
     }
-  }
-};
-
-/**
- * Emits buffered `op` events.
- *
- * @api private
- */
-
-Subscription.prototype.emitOps = function(){
-  if (this.ops.length) {
-    for (var i = 0; i < this.ops.length; i++) {
-      this.emit('op', this.ops[i]);
-    }
-    this.ops = [];
   }
 };
 
