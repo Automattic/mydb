@@ -128,27 +128,30 @@ Client.prototype.onPacket = function(packet){
 };
 
 /**
- * Creates a subscription.
+ * Adds a subscription.
  *
- * @param {String} id
+ * @param {Subscription} subscription
  * @api private
  */
 
-Client.prototype.subscribe = function(id){
-  var sub = new Subscription(this.server, id);
-  var self = this;
-  this.subscriptions[id] = sub;
-  sub.on('payload', function(obj){
-    self.onPayload(sub, obj);
-  });
-  sub.on('op', function(obj){
-    self.onOp(sub, obj);
-  });
-  sub.on('error', function(err){
-    self.onError(sub, err);
-  });
-  sub.on('destroy', this.onDestroy.bind(this, sub));
-  this.emit('subscription', sub);
+Client.prototype.add = function(sub){
+  var id = sub.id;
+  if (this.subscriptions[id]) {
+    debug('subscription already exists');
+    sub.destroy();
+  } else {
+    var self = this;
+    sub.op(function(obj){
+      self.onOp(sub, obj);
+    });
+    sub.on('error', function(err){
+      self.onSubscriptionError(sub, err);
+    });
+    sub.on('destroy', function(){
+      self.onSubscriptionDestroy(sub);
+    });
+    this.emit('subscription', sub);
+  }
 };
 
 /**
