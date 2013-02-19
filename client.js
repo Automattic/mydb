@@ -45,6 +45,26 @@ function Client(server, socket){
 Client.prototype.__proto__ = EventEmitter.prototype;
 
 /**
+ * Gets the mydb socket id from URL
+ * or generates one and informs the client.
+ *
+ * @api public
+ */
+
+Client.prototype.sid = function(){
+  var uri = this.socket.request.url;
+  var query = url.parse(uri, true).query;
+
+  if (query && query.mydb_id){
+    return query.mydb_id;
+  } else {
+    var id = uid(20);
+    this.send({ e: 'i', i: id });
+    return id;
+  }
+};
+
+/**
  * Tests if the client is writable.
  *
  * @return {Boolean} writable state
