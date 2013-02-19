@@ -54,12 +54,8 @@ function Server(http, opts){
     this.redis = redis(uri.port, uri.host);
   }
 
-  // redis sub
-  this.redisSub = opts.redisSub;
-  if ('object' != typeof this.redisSub) {
-    var uri = parse(this.redisSub || 'localhost:6379');
-    this.redisSub = redis(uri.port, uri.host);
-  }
+  // subscription timeout
+  this.subTimeout = null == opts.subTimeout ? 60000 : opts.subTimeout;
 
   // mongodb
   this.mongo = opts.mongo;
