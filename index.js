@@ -130,6 +130,82 @@ Server.prototype.onclose = function(client){
   // remove from list of open clients
   delete this.ids[id];
 };
+
+/**
+ * Capture SUBSCRIBE packets.
+ *
+ * @api private
+ */
+
+Server.prototype.subscribe = function(){
+  var sub = clone(this.redis);
+  var self = this;
+  sub.subscribe('MYDB_SUBSCRIBE');
+  sub.on('message', function(channel, packet){
+    var data = JSON.parse(packet);
+    var sid = data.s;
+
+    debug('captured subscription for socket id "%s"', sid);
+
+    var subscription = new Subscription(this, data.h, data.i, data.f);
+
+    if (self.ids[sid]) {
+      self.ids[sid].add(subscription);
+    } else {
+      self.buffer(sid, subscription);
+    }
+  });
+};
+
+/**
+ * Buffers a subscription.
+ *
+ * @param {String} socket id
+ * @param {Subscription} subscription
+ * @api private
+ */
+
+Server.prototype.buffer = function(sid, sub){
+  var self = this;
+  debug('adding subscription to pending cache for "%s"', sid);
+  this.pending[sid] = this.pending[sid] || [];
+  this.pending[sid].push(sub);
+
+  // handle subscription errors while pending
+  function onerror(err){
+    debug('subscription "%s" error %s in pending state', sub.id, err.stack);
+    sub.destroy();
+  }
+  sub.on('error', onerror);
+
+  // handle destroy callback from either `error` or timeout
+  function ondestroy(){
+    debug('removing subscription from pending cache');
+    var index = self.pending[sid].indexOf(sub);
+    self.pending[sid].splice(index, 1);
+  }
+  sub.on('destroy', ondestroy);
+
+  // subscription timeout
+  debug('setting %d');
+  var timer = setTimeout(function(){
+    debug('timeout elapsed for subscription');
+    if (self.pending[sid]) {
+      debug('subscription still pending - destroying');
+      sub.destroy();
+    } else {
+      debug('subscription has been claimed - ignoring');
+    }
+  }, this.subTimeout);
+
+  // cleanup
+  sub.once('attach', function(){
+    sub.removeListener('error', onerror);
+    sub.removeListener('destroy', ondestroy);
+    clearTimeout(timer);
+  });
+};
+
 /**
  * Connection URI parsing utility.
  *
