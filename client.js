@@ -190,9 +190,9 @@ Client.prototype.destroy = function(){
  * @api private
  */
 
-Client.prototype.onError = function(sub, err){
+Client.prototype.onSubscriptionError = function(sub, err){
   debug('subscription "%s" error %s', sub.id, err.stack);
-  this.emit('error', err, sub);
+  sub.destroy();
 };
 
 /**
@@ -202,7 +202,9 @@ Client.prototype.onError = function(sub, err){
  * @api private
  */
 
-Client.prototype.onDestroy = function(sub){
+Client.prototype.onSubscriptionDestroy = function(sub){
+  console.log('TODO: remove from this.subscription');
+
   if (this.open()){
     debug('acknowledging subscription removal "%s"', sub.id);
     this.send({ e: 'u', i: sub.id });
