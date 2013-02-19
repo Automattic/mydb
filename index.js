@@ -87,7 +87,23 @@ Server.prototype.__proto__ = EventEmitter.prototype;
 
 Server.prototype.onConnection = function(socket){
   debug('initializing new client');
+
   var client = new Client(this, socket);
+  var id = client.id;
+  var self = this;
+  this.ids[id] = client;
+
+  // handle client close
+  client.on('close', this.onclose.bind(this, client));
+
+  // add pending subscriptions
+  if (this.pending[id]) {
+    this.pending[id].forEach(function(sub){
+      client.add(sub);
+    });
+    delete this.pending[id];
+  }
+
   this.emit('client', client);
 };
 
