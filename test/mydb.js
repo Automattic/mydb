@@ -3,14 +3,14 @@
  * Test dependencies.
  */
 
-var http = require('http').Server
-  , express = require('express')
-  , server = require('..')
-  , expect = require('expect.js')
-  , expose = require('mydb-expose')
-  , client = require('mydb-client')
-  , driver = require('mydb-driver')
-  , request = require('supertest');
+var http = require('http').Server;
+var express = require('express');
+var server = require('..');
+var expect = require('expect.js');
+var expose = require('mydb-expose');
+var client = require('mydb-client');
+var driver = require('mydb-driver');
+var request = require('supertest');
 
 /**
  * Connect to MongoDB.
