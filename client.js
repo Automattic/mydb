@@ -136,6 +136,7 @@ Client.prototype.onPacket = function(packet){
 
 Client.prototype.add = function(sub){
   var id = sub.id;
+  debug('adding subscription "%s"', id);
   if (this.subscriptions[id]) {
     debug('subscription already exists');
     sub.destroy();
