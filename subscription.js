@@ -19,18 +19,21 @@ module.exports = Subscription;
  *
  * @param {Server} server
  * @param {String} subscription id
+ * @param {String} document id
+ * @param {Object} fields
  * @api public
  */
 
-function Subscription(server, id){
+function Subscription(server, id, oid, fields){
   this.server = server;
-  this.redis = server.redis;
-  this.sub = clone(server.redisSub);
-  this.mongo = server.mongo;
+  this.sub = clone(server.redis);
   this.id = id;
-  this.get();
+  this.oid = oid;
+  this.fields = fields;
   this.ops = [];
+  this.shouldBuffer = true;
   this.onMessage = this.onMessage.bind(this);
+  this.subscribe();
 }
 
 /**
@@ -40,40 +43,13 @@ function Subscription(server, id){
 Subscription.prototype.__proto__ = EventEmitter.prototype;
 
 /**
- * Retrieves the document id and fields from redis.
- *
- * @api private
- */
-
-Subscription.prototype.get = function(){
-  debug('getting details for "%s"', this.id);
-  var self = this;
-  this.readyState = 'discoverying';
-  this.redis.get(this.id, function(err, data){
-    if (!data) err = new Error('No subscription "' + self.id + '"');
-    if (err) return self.emit('error', err);
-    var obj;
-    try {
-      obj = JSON.parse(data);
-    } catch(e) {
-      return self.emit('error', err);
-    }
-    debug('"%s" is "%s.%s" (%j)', self.id, obj.c, obj.i, obj.f || {});
-    self.oid = obj.i;
-    self.fields = obj.f || {};
-    self.col = obj.c;
-    self.subscribe();
-  });
-};
-
-/**
  * Subscribes to redis.
  *
  * @api private
  */
 
 Subscription.prototype.subscribe = function(){
-  debug('subscribing to redis ops for "%s"', this.oid);
+  debug('subscribing to redis ops for "%s"', this.id);
   var self = this;
   this.readyState = 'subscribing';
   this.sub.subscribe(this.oid, function(err){
@@ -85,30 +61,16 @@ Subscription.prototype.subscribe = function(){
 };
 
 /**
- * Fetch the payload.
+ * Subscribe to `op` events.
  *
- * @api private
+ * @api public
  */
 
-Subscription.prototype.fetch = function(){
-  debug('fetching payload for "%s.%s"', this.col, this.oid);
-  var opts = { fields: this.fields };
-  var self = this;
-  this.mongo.get(this.col).findById(this.oid, opts, function(err, doc){
-    if ('subscribed' != self.readyState) return;
-    if (!doc) {
-      var msg = 'Document "' + self.col + '.' + self.id + '" not found';
-      err = new Error(msg);
-    }
-    if (err) {
-      self.destroy();
-      return self.emit('error', err);
-    }
-    debug('retrieved document "%s.%s"', self.col, self.id);
-    self.payload = doc;
-    self.emit('payload', doc);
-    self.emitOps();
-  });
+Subscription.prototype.op = function(fn){
+  this.emit('attach');
+  this.on('op', fn);
+  this.shouldBuffer = false;
+  this.emitOps();
 };
 
 /**
@@ -139,12 +101,12 @@ Subscription.prototype.onMessage = function(channel, message){
 
       obj[1] = qry;
 
-      if (this.payload) {
-        debug('emitting op %j', obj);
-        this.emit('op', obj);
-      } else {
+      if (this.shouldBuffer) {
         debug('buffering op %j until payload is obtained', obj);
         this.ops.push(obj);
+      } else {
+        debug('emitting op %j', obj);
+        this.emit('op', obj);
       }
     } else {
       debug('operation %j ignored minified with %j', obj[1], this.fields);
