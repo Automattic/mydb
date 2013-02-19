@@ -63,7 +63,7 @@ Subscription.prototype.subscribe = function(){
     this.readyState = 'subscribed';
   }
 
-  var n = this.server.subscriptions[this.oid]++;
+  var n = ++this.server.subscriptions[this.oid];
   debug('%d active subscriptions for "%s"', n, this.oid);
 
   // add `message` handler
