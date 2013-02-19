@@ -3,9 +3,11 @@
  * Module dependencies.
  */
 
-var Subscription = require('./subscription')
-  , EventEmitter = require('events').EventEmitter
-  , debug = require('debug')('mydb:client');
+var url = require('url');
+var uid = require('uid2');
+var Subscription = require('./subscription');
+var EventEmitter = require('events').EventEmitter;
+var debug = require('debug')('mydb:client');
 
 /**
  * Module exports.
@@ -18,6 +20,7 @@ module.exports = Client;
  *
  * @param {Server} originating server
  * @param {Socket} engine.io socket
+ * @param {Socket} mydb id
  * @api public
  */
 
