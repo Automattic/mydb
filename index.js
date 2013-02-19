@@ -49,10 +49,14 @@ function Server(http, opts){
 
   // redis
   this.redis = opts.redis;
+  this.subscriptions = {};
   if ('object' != typeof opts.redis) {
     var uri = parse(this.redis || 'localhost:6379');
     this.redis = redis(uri.port, uri.host);
   }
+
+  // use a separate client for all mongo ops
+  this.redisSub = clone(this.redis);
 
   // subscription timeout
   this.subTimeout = null == opts.subTimeout ? 60000 : opts.subTimeout;
