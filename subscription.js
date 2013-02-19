@@ -163,11 +163,12 @@ Subscription.prototype.destroy = function(){
     // remove `message` listener
     this.redis.removeListener('message', this.onmessage);
 
-    // remove `op` listener
-    this.removeAllListeners('op');
-
+    // change ready state
     this.readyState = 'unsubscribed';
     this.emit('destroy');
+
+    // remove all listeners
+    this.removeAllListeners();
   } else {
     debug('ignoring destroy - current state is "%s"', this.readyState);
   }
