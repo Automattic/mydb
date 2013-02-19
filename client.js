@@ -32,6 +32,10 @@ function Client(server, socket){
   // attach events
   socket.on('message', this.onMessage.bind(this));
   socket.on('close', this.onClose.bind(this));
+
+  // socket id
+  this.id = this.sid();
+  debug('initialized client with sid "%s"', this.id);
 };
 
 /**
