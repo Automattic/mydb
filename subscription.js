@@ -26,13 +26,13 @@ module.exports = Subscription;
 
 function Subscription(server, id, oid, fields){
   this.server = server;
-  this.sub = clone(server.redis);
+  this.redis = server.redisSub;
   this.id = id;
   this.oid = oid;
   this.fields = fields;
   this.ops = [];
   this.shouldBuffer = true;
-  this.onMessage = this.onMessage.bind(this);
+  this.onmessage = this.onmessage.bind(this);
   this.subscribe();
 }
 
@@ -52,12 +52,22 @@ Subscription.prototype.subscribe = function(){
   debug('subscribing to redis ops for "%s"', this.id);
   var self = this;
   this.readyState = 'subscribing';
-  this.sub.subscribe(this.oid, function(err){
-    if (err) return self.emit('error', err);
-    self.readyState = 'subscribed';
-    self.fetch();
-  });
-  this.sub.on('message', this.onMessage);
+
+  if (!this.server.subscriptions[this.oid]) {
+    this.server.subscriptions[this.oid] = 0;
+    this.redis.subscribe(this.oid, function(err){
+      if (err) return self.emit('error', err);
+      self.readyState = 'subscribed';
+    });
+  } else {
+    this.readyState = 'subscribed';
+  }
+
+  var n = this.server.subscriptions[this.oid]++;
+  debug('%d active subscriptions for "%s"', n, this.oid);
+
+  // add `message` handler
+  this.redis.on('message', this.onmessage);
 };
 
 /**
