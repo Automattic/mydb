@@ -89,7 +89,7 @@ Subscription.prototype.op = function(fn){
  * @api private
  */
 
-Subscription.prototype.onMessage = function(channel, message){
+Subscription.prototype.onmessage = function(channel, message){
   if (this.oid == channel) {
     var obj;
 
@@ -149,25 +149,26 @@ Subscription.prototype.destroy = function(){
   if ('subscribing' == this.readyState || 'subscribed' == this.readyState) {
     debug('destroying "%s" (state: %s)', this.id, this.readyState);
     var self = this;
-    this.readyState = 'unsubscribing';
     this.ops = null;
     this.payload = null;
-    this.sub.end();
+
+    // remove channel subscription if needed
+    this.server.subscriptions[this.oid]--;
+    if (!this.server.subscriptions[this.oid]) {
+      this.redis.unsubscribe(this.oid, function(){
+        debug('confirmed "%s" unsubscription', self.oid);
+      });
+    }
+
+    // remove `message` listener
+    this.redis.removeListener('message', this.onmessage);
+
+    // remove `op` listener
+    this.removeAllListeners('op');
+
     this.readyState = 'unsubscribed';
     this.emit('destroy');
   } else {
     debug('ignoring destroy - current state is "%s"', this.readyState);
   }
 };
-
-/**
- * Utility to clone a redis connection.
- *
- * @param {RedisClient} client
- * @return {RedisClient} cloned client
- * @api private
- */
-
-function clone(client){
-  return redis(client.stream.remotePort, client.stream.remoteAddress);
-}
