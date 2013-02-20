@@ -190,7 +190,6 @@ Server.prototype.buffer = function(sid, sub){
   sub.on('destroy', ondestroy);
 
   // subscription timeout
-  debug('setting %d');
   var timer = setTimeout(function(){
     debug('timeout elapsed for subscription');
     if (self.pending[sid]) {
