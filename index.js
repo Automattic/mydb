@@ -4,7 +4,7 @@
  */
 
 var engine = require('engine.io');
-var redis = require('redis').createClient;
+var redis = require('redis');
 var url = require('url');
 var Client = require('./client');
 var Subscription = require('./subscription');
@@ -49,9 +49,11 @@ function Server(http, opts){
 
   // redis
   var uri = parse(opts.redis || 'localhost:6379');
-  this.redis = redis(uri.port, uri.host);
-  this.redisSub = redis(uri.port, uri.host);
+  uri.port = uri.port || 6379;
+  this.redis = redis.createClient(uri.port, uri.host);
+  this.redisSub = redis.createClient(uri.port, uri.host);
   this.redisSub.setMaxListeners(0);
+  this.redisUri = uri;
   this.subscriptions = {};
 
   // subscription timeout
@@ -139,7 +141,7 @@ Server.prototype.onclose = function(client){
  */
 
 Server.prototype.subscribe = function(){
-  var sub = clone(this.redis);
+  var sub = redis.createClient(this.redisUri.port, this.redisUri.host);
   var self = this;
   sub.subscribe('MYDB_SUBSCRIBE');
   sub.on('message', function(channel, packet){
@@ -218,17 +220,4 @@ function parse(uri){
   var host = pieces.shift();
   var port = pieces.pop();
   return { host: host, port: port };
-}
-
-/**
- * Utility to clone a redis connection.
- *
- * @param {RedisClient} client
- * @return {RedisClient} cloned client
- * @api private
- */
-
-function clone(client){
-  var stream = client.stream;
-  return redis(stream.remotePort, stream.remoteAddress);
 }
