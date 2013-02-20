@@ -57,6 +57,7 @@ function Server(http, opts){
 
   // use a separate client for all mongo ops
   this.redisSub = clone(this.redis);
+  this.redisSub.setMaxListeners(0);
 
   // subscription timeout
   this.subTimeout = null == opts.subTimeout ? 60000 : opts.subTimeout;
