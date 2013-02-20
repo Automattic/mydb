@@ -49,11 +49,11 @@ Subscription.prototype.__proto__ = EventEmitter.prototype;
  */
 
 Subscription.prototype.subscribe = function(){
-  debug('subscribing to redis ops for "%s" (oid: %s)', this.id, this.oid);
   var self = this;
   this.readyState = 'subscribing';
 
   if (!this.server.subscriptions[this.oid]) {
+    debug('redis subscribe %s', this.oid);
     this.server.subscriptions[this.oid] = 0;
     this.redis.subscribe(this.oid, function(err){
       if (err) return self.emit('error', err);
@@ -147,6 +147,7 @@ Subscription.prototype.destroy = function(){
     // remove channel subscription if needed
     this.server.subscriptions[this.oid]--;
     if (!this.server.subscriptions[this.oid]) {
+      debug('redis unsubscribe %s', this.oid);
       this.redis.unsubscribe(this.oid, function(){
         debug('confirmed "%s" unsubscription', self.oid);
       });
