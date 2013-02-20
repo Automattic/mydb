@@ -91,10 +91,10 @@ Server.prototype.__proto__ = EventEmitter.prototype;
  */
 
 Server.prototype.onConnection = function(socket){
-  debug('initializing new client');
-
   var client = new Client(this, socket);
   var id = client.id;
+  debug('initializing new client %s', id);
+
   var self = this;
   this.ids[id] = client;
 
@@ -103,6 +103,7 @@ Server.prototype.onConnection = function(socket){
 
   // add pending subscriptions
   if (this.pending[id]) {
+    debug('adding pending subsriptions to client %s', id);
     this.pending[id].forEach(function(sub){
       client.add(sub);
     });

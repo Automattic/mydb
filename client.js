@@ -138,7 +138,7 @@ Client.prototype.add = function(sub){
   var id = sub.id;
   debug('adding subscription "%s"', id);
   if (this.subscriptions[id]) {
-    debug('subscription already exists');
+    debug('subscription already exists - destroying');
     sub.destroy();
   } else {
     var self = this;
@@ -232,5 +232,6 @@ Client.prototype.onClose = function(){
  */
 
 Client.prototype.onOp = function(sub, obj){
+  debug('sending op for subscription %s', sub.id);
   this.send({ e: 'o', i: sub.id, d: obj });
 };
