@@ -1,4 +1,39 @@
 
+2.0.0 / 2013-02-19
+==================
+
+  * index: remove listeners limit on redis client for subscriptions handling
+  * subscription: debug when redis actually subscribes/unsubscribes
+  * index: remove bad instrumentation
+  * client: discard subscriptions
+  * client: several subscription fixes
+  * subscription: more instrumentation
+  * subscription: default fields selection to `{}`
+  * subscription: remove `emitOps`
+  * subscription: improve instrumentation
+  * subscription: fixed instrumentation
+  * subscription: style
+  * index: style
+  * index: added book keeping for redis subscriptions
+  * client: instrument
+  * subscription: improve cleanup
+  * subscription: reuse subscriptions instead of one tcp connection per subscription
+  * subscription: style
+  * subscription: added op buffering
+  * package: removed `monk` dep and added `uid2`
+  * index: added new subscription handling methods
+  * index: added client onclose handler
+  * index: added client tracking and subscription claiming
+  * index: keep track of pending subscriptions
+  * index: added subscription timeout
+  * index: style
+  * client: removed legacy `onPayload` method
+  * client: renamed subscription event handlers
+  * client: added method to capture a new subscription
+  * client: added method `sid` to obtain or create a socket id
+  * client: expose `id`
+  * client: style
+
 1.3.3 / 2013-02-08
 ==================
 
