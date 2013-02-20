@@ -139,6 +139,7 @@ Client.prototype.add = function(sub){
   debug('adding subscription "%s"', id);
   if (this.subscriptions[id]) {
     debug('subscription already exists');
+    sub.destroy();
   } else {
     var self = this;
     sub.op(function(obj){
