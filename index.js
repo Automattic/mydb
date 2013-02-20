@@ -103,7 +103,7 @@ Server.prototype.onConnection = function(socket){
 
   // add pending subscriptions
   if (this.pending[id]) {
-    debug('adding pending subsriptions to client %s', id);
+    debug('flushing pending subscriptions to client %s', id);
     this.pending[id].forEach(function(sub){
       client.add(sub);
     });
