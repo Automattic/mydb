@@ -139,7 +139,6 @@ Client.prototype.add = function(sub){
   debug('adding subscription "%s"', id);
   if (this.subscriptions[id]) {
     debug('subscription already exists');
-    sub.destroy();
   } else {
     var self = this;
     sub.op(function(obj){
@@ -151,6 +150,7 @@ Client.prototype.add = function(sub){
     sub.on('destroy', function(){
       self.onSubscriptionDestroy(sub);
     });
+    this.subscriptions[id] = sub;
     this.emit('subscription', sub);
   }
 };
@@ -167,7 +167,7 @@ Client.prototype.unsubscribe = function(id){
   if (sub) {
     sub.destroy();
   } else {
-    debug('subscription "%s" not found for destroying');
+    debug('subscription "%s" not found for destroying', id);
   }
 };
 
@@ -204,7 +204,7 @@ Client.prototype.onSubscriptionError = function(sub, err){
  */
 
 Client.prototype.onSubscriptionDestroy = function(sub){
-  console.log('TODO: remove from this.subscription');
+  delete this.subscriptions[sub.id];
 
   if (this.open()){
     debug('acknowledging subscription removal "%s"', sub.id);
