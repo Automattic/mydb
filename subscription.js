@@ -29,7 +29,7 @@ function Subscription(server, id, oid, fields){
   this.redis = server.redisSub;
   this.id = id;
   this.oid = oid;
-  this.fields = fields;
+  this.fields = fields || {};
   this.ops = [];
   this.shouldBuffer = true;
   this.onmessage = this.onmessage.bind(this);
