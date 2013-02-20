@@ -431,10 +431,19 @@ describe('mydb', function(){
 
             // we make sure payloads are cloned, so each array has
             // to have only one item
-            doc3.on('arr', function(){
+            var totalArrs = 3;
+            doc1.on('arr', arr);
+            doc2.on('arr', arr);
+            doc3.on('arr', arr);
+
+            function arr(){
+              if (--totalArrs) return;
               expect(doc1.arr).to.eql(['test']);
               expect(doc2.arr).to.eql(['test']);
               expect(doc3.arr).to.eql(['test']);
+
+              expect(doc1.arr).not.to.be(doc2.arr);
+              expect(doc1.arr).not.to.be(doc3.arr);
 
               doc1.destroy();
               setTimeout(function(){
@@ -444,7 +453,7 @@ describe('mydb', function(){
                   doc3.destroy();
                 }, 50);
               }, 50);
-            });
+            }
           }
         });
       });
