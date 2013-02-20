@@ -102,6 +102,7 @@ Subscription.prototype.onmessage = function(channel, message){
     try {
       obj = JSON.parse(message);
     } catch(e){
+      debug('json parse error');
       this.emit('error', e);
       return;
     }
