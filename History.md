@@ -1,4 +1,11 @@
 
+2.0.3 / 2013-02-20
+==================
+
+  * package: bump `mydb-client`
+  * index: improve instrumentation
+  * *: improve instrumentation
+
 2.0.2 / 2013-02-20
 ==================
 
