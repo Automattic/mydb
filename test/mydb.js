@@ -6,6 +6,7 @@
 var http = require('http').Server;
 var express = require('express');
 var server = require('..');
+var Subscription = require('../subscription');
 var expect = require('expect.js');
 var expose = require('mydb-expose');
 var client = require('mydb-client');
@@ -492,6 +493,79 @@ describe('mydb', function(){
           doc.on('testing', function(v){
             expect(v).to.be('something');
             done();
+          });
+        });
+      });
+    });
+  });
+
+  describe('preloading and buffering', function(){
+    it('should preload ops until subscription', function(done){
+      var app = create();
+      var httpServer = http(app);
+      var mydb = server(httpServer);
+
+      posts.insert({ haha: 'yep' });
+
+      app.get('/', function(req, res, next){
+        posts.findOne({ haha: 'yep' }, function(err, post){
+          if (err) return done(err);
+          res.subscribe(post._id, function(err, sid){
+            if (err) return done(err);
+            res.send({
+              sid: sid,
+              socketid: req.mydb_socketid,
+              doc: post
+            });
+          });
+        });
+      });
+
+      httpServer.listen(function(){
+        var port = httpServer.address().port;
+        request(app)
+        .get('/')
+        .expect(200)
+        .end(function(err, res){
+          if (err) return done(err);
+          var body = res.body;
+
+          // make sure subscription exists
+          var subs = mydb.pending[body.socketid];
+          var sub = subs[0];
+          expect(subs.length).to.be(1);
+          expect(sub).to.be.a(Subscription);
+          expect(sub.id).to.be(body.sid);
+          expect(sub.ops.length).to.be(0);
+
+          // change `haha`
+          posts.update(body.doc._id, { $set: { haha: 'nope' } }, function(err){
+            if (err) return done(err);
+
+            setTimeout(function(){
+              // make sure the op was consumed
+              expect(sub.ops.length).to.be(1);
+
+              var db = client('ws://localhost:' + port, { sid: body.socketid });
+              db.preload({
+                url: '/woot',
+                sid: body.sid,
+                doc: body.doc
+              });
+
+              var doc = db.get('/woot', function(){
+                expect(doc.haha).to.be('yep');
+                doc.once('haha', function(v){
+                  expect(v).to.be('nope');
+                  expect(mydb.pending[body.socketid]).to.be(undefined);
+                  posts.update(body.doc._id, { $set: { haha: 'yup again' } });
+                  doc.once('haha', function(v){
+                    expect(v).to.be('yup again');
+                    done();
+                  });
+                });
+              });
+            }, 50);
           });
         });
       });
