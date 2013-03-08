@@ -1,4 +1,10 @@
 
+2.0.7 / 2013-03-08
+==================
+
+  * test: add mydb-client document root-level events test
+  * test: fix race test
+
 2.0.6 / 2013-02-21
 ==================
 
