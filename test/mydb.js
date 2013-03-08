@@ -121,6 +121,57 @@ describe('mydb', function(){
       });
     });
 
+    it('should emit root-level doc events', function(done){
+      var app = create();
+      var httpServer = http(app);
+      var mydb = server(httpServer);
+
+      posts.insert({ title: 'Tobi', tags: [
+        { name: 'Games', slug: '/slug' },
+        { name: 'Movies', slug: '/movies' },
+        { name: 'Code', slug: '/code' }
+      ] });
+
+      app.get('/doc', function(req, res){
+        res.send(posts.findOne({ title: 'Tobi' }));
+      });
+
+      httpServer.listen(function(){
+        var db = client('ws://localhost:' + httpServer.address().port);
+        var doc = db.get('/doc', function(){
+          expect(doc.title).to.be('Tobi');
+          expect(doc.tags.length).to.be(3);
+          expect(doc.tags[0].name).to.be('Games');
+          var count = 3;
+          doc.on('tags.0.slug', function(v, op){
+            expect(v).to.be('/foo');
+            expect(op.op).to.be('$set');
+            expect(op.key).to.be('tags.0.slug');
+            expect(op.value).to.be('/foo');
+            --count || done();
+          });
+          doc.on('tags.0', function(v, op){
+            expect(v.name).to.be('Games');
+            expect(v.slug).to.be('/foo');
+            expect(op.op).to.be('$set');
+            expect(op.key).to.be('tags.0.slug');
+            expect(op.value).to.be('/foo');
+            --count || done();
+          });
+          doc.on('tags', function(v, op){
+            expect(v.length).to.be(3);
+            expect(v[0].name).to.be('Games');
+            expect(v[0].slug).to.be('/foo');
+            expect(op.op).to.be('$set');
+            expect(op.key).to.be('tags.0.slug');
+            expect(op.value).to.be('/foo');
+            --count || done();
+          });
+          posts.update({ _id: doc._id, 'tags.name': 'Games' }, { $set: { 'tags.$.slug': '/foo' } });
+        });
+      });
+    });
+
     it('should emit custom op events', function(done){
       var app = create();
       var httpServer = http(app);
