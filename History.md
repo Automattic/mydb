@@ -1,4 +1,10 @@
 
+2.0.8 / 2013-04-02
+==================
+
+  * package: bumped `mydb-client` to `3.0.2`
+  * test: added failing test
+
 2.0.7 / 2013-03-08
 ==================
 
