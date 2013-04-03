@@ -732,6 +732,33 @@ describe('mydb', function(){
         });
       });
     });
+
+    it('should not fire ready if a handler changes state', function(done){
+      var app = create();
+      var httpServer = http(app);
+      var mydb = server(httpServer);
+
+      posts.insert({ a: 'wa wa wa' });
+
+      app.get('/', function(req, res){
+        res.send(posts.findOne({ a: 'wa wa wa' }));
+      });
+
+      httpServer.listen(function(){
+        var db = client('ws://localhost:' + httpServer.address().port);
+        var doc = db.get('/');
+        doc.ready(function(){});
+        doc.ready(function(){
+          doc.destroy();
+          setTimeout(function(){
+            done();
+          }, 100);
+        });
+        doc.ready(function(){
+          throw new Error('should not fire');
+        });
+      });
+    });
   });
 
 });
