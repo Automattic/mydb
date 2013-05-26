@@ -912,6 +912,37 @@ describe('mydb', function(){
         });
       });
     });
+
+    it('should support projection operators', function(done){
+      var app = create();
+      var httpServer = http(app);
+      var mydb = server(httpServer);
+
+      var id = mongo.id();
+      posts.insert({ _id: id, hi: [1,2,3,4,5], b: 2 });
+
+      app.get('/', function(req, res){
+        res.send(posts.findOne(id, { fields: { _id: 1, hi: { $slice: -3 } } }));
+      });
+
+      httpServer.listen(function(){
+        var db = client('ws://localhost:' + httpServer.address().port);
+        var doc = db.get('/');
+        doc.ready(function(){
+          expect(doc.b).to.be(undefined);
+          expect(doc.hi).to.eql([3,4,5]);
+
+          posts.update(id, { $set: { b: 2 }, $push: { hi: 6 } });
+          doc.once('hi', function(){
+            setTimeout(function(){
+              expect(doc.b).to.be(undefined);
+              expect(doc.hi).to.eql([3,4,5,6]);
+              done();
+            }, 10);
+          });
+        });
+      });
+    });
   });
 
 });
