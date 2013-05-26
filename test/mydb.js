@@ -761,4 +761,164 @@ describe('mydb', function(){
     });
   });
 
+  describe('fields', function(){
+    it('should only send the exposed fields (mongo syntax)', function(done){
+      var app = create();
+      var httpServer = http(app);
+      var mydb = server(httpServer);
+
+      posts.insert({ hi: 'some fields', b: 'ignored', bye: 'bye' });
+
+      app.get('/', function(req, res){
+        res.send(posts.findOne({ hi: 'some fields' }, { fields: { hi: 1, bye: 1 } }));
+      });
+
+      httpServer.listen(function(){
+        var db = client('ws://localhost:' + httpServer.address().port);
+        var doc = db.get('/');
+        doc.ready(function(){
+          expect(doc.hi).to.be('some fields');
+          expect(doc.b).to.be(undefined);
+          expect(doc.bye).to.be('bye');
+          done();
+        });
+      });
+    });
+
+    it('should only send the exposed fields (string)', function(done){
+      var app = create();
+      var httpServer = http(app);
+      var mydb = server(httpServer);
+
+      posts.insert({ hi: 'some fields 2', b: 'ignored', bye: 'bye' });
+
+      app.get('/', function(req, res){
+        res.send(posts.findOne({ hi: 'some fields 2' }, 'hi bye'));
+      });
+
+      httpServer.listen(function(){
+        var db = client('ws://localhost:' + httpServer.address().port);
+        var doc = db.get('/');
+        doc.ready(function(){
+          expect(doc.hi).to.be('some fields 2');
+          expect(doc.b).to.be(undefined);
+          expect(doc.bye).to.be('bye');
+          done();
+        });
+      });
+    });
+
+    it('should only send the exposed fields (array)', function(done){
+      var app = create();
+      var httpServer = http(app);
+      var mydb = server(httpServer);
+
+      posts.insert({ hi: 'some fields 3', b: 'ignored', bye: 'bye' });
+
+      app.get('/', function(req, res){
+        res.send(posts.findOne({ hi: 'some fields 3' }, ['hi', 'bye']));
+      });
+
+      httpServer.listen(function(){
+        var db = client('ws://localhost:' + httpServer.address().port);
+        var doc = db.get('/');
+        doc.ready(function(){
+          expect(doc.hi).to.be('some fields 3');
+          expect(doc.b).to.be(undefined);
+          expect(doc.bye).to.be('bye');
+          done();
+        });
+      });
+    });
+
+    it('should not send updates belonging to other fields', function(done){
+      var app = create();
+      var httpServer = http(app);
+      var mydb = server(httpServer);
+
+      var id = mongo.id();
+      posts.insert({ _id: id, hi: 'some fields 4', b: 'ignored', bye: 'bye' });
+
+      app.get('/', function(req, res){
+        res.send(posts.findById(id, ['hi', 'bye']));
+
+        setTimeout(function(){
+          posts.update(id, { $set: { b: 'wat' } }, function(err){
+            if (err) throw err;
+          });
+        }, 50);
+
+        setTimeout(function(){
+          posts.update(id, { $set: { hi: 'lol' } }, function(err){
+            if (err) throw err;
+          });
+        }, 100);
+      });
+
+      httpServer.listen(function(){
+        var db = client('ws://localhost:' + httpServer.address().port);
+        var doc = db.get('/');
+        doc.ready(function(){
+          expect(doc.hi).to.be('some fields 4');
+          expect(doc.b).to.be(undefined);
+          expect(doc.bye).to.be('bye');
+
+          doc.once('b', function(){
+            done(new Error('wtf'));
+          });
+
+          doc.once('hi', function(v){
+            expect(doc.b).to.be(undefined);
+            expect(v).to.be('lol');
+            done();
+          });
+        });
+      });
+    });
+
+    it('should ignore parts of updates to other fields', function(done){
+      var app = create();
+      var httpServer = http(app);
+      var mydb = server(httpServer);
+
+      var id = mongo.id();
+      posts.insert({ _id: id, hi: 'some 5', b: 'ignored', bye: 'bye' });
+
+      app.get('/', function(req, res){
+        res.send(posts.findById(id, ['hi', 'bye']));
+
+        setTimeout(function(){
+          posts.update(id, { $set: { b: 'wat', hi: 'hi' } }, function(err){
+            if (err) throw err;
+          });
+        }, 50);
+      });
+
+      httpServer.listen(function(){
+        var db = client('ws://localhost:' + httpServer.address().port);
+        var doc = db.get('/');
+        doc.ready(function(){
+          expect(doc.hi).to.be('some 5');
+          expect(doc.b).to.be(undefined);
+          expect(doc.bye).to.be('bye');
+
+          doc.once('b', function(){
+            done(new Error('wtf'));
+          });
+
+          doc.once('hi', function(v){
+            // allow some time for an op to `b` to have
+            // happened in case the object keys order
+            // is not preserved
+            setTimeout(function(){
+              expect(doc.b).to.be(undefined);
+              expect(v).to.be('hi');
+              done();
+            }, 10);
+          });
+        });
+      });
+    });
+  });
+
 });
