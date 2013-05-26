@@ -841,18 +841,6 @@ describe('mydb', function(){
 
       app.get('/', function(req, res){
         res.send(posts.findById(id, ['hi', 'bye']));
-
-        setTimeout(function(){
-          posts.update(id, { $set: { b: 'wat' } }, function(err){
-            if (err) throw err;
-          });
-        }, 50);
-
-        setTimeout(function(){
-          posts.update(id, { $set: { hi: 'lol' } }, function(err){
-            if (err) throw err;
-          });
-        }, 100);
       });
 
       httpServer.listen(function(){
@@ -862,6 +850,13 @@ describe('mydb', function(){
           expect(doc.hi).to.be('some fields 4');
           expect(doc.b).to.be(undefined);
           expect(doc.bye).to.be('bye');
+
+          posts.update(id, { $set: { b: 'wat' } }, function(err){
+            if (err) return done(err);
+            posts.update(id, { $set: { hi: 'lol' } }, function(err){
+              if (err) return done(err);
+            });
+          });
 
           doc.once('b', function(){
             done(new Error('wtf'));
@@ -886,12 +881,6 @@ describe('mydb', function(){
 
       app.get('/', function(req, res){
         res.send(posts.findById(id, ['hi', 'bye']));
-
-        setTimeout(function(){
-          posts.update(id, { $set: { b: 'wat', hi: 'hi' } }, function(err){
-            if (err) throw err;
-          });
-        }, 50);
       });
 
       httpServer.listen(function(){
@@ -901,6 +890,10 @@ describe('mydb', function(){
           expect(doc.hi).to.be('some 5');
           expect(doc.b).to.be(undefined);
           expect(doc.bye).to.be('bye');
+
+          posts.update(id, { $set: { b: 'wat', hi: 'hi' } }, function(err){
+            if (err) done(err);
+          });
 
           doc.once('b', function(){
             done(new Error('wtf'));
