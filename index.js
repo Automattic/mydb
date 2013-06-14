@@ -156,8 +156,13 @@ Server.prototype.onclose = function(client){
  */
 
 Server.prototype.subscribe = function(data, fn){
-  var sid = data.s;
-  var sub = new Subscription(this, data.h, data.i, data.f);
+  var sid = data.socket_id;
+  var sub = new Subscription(
+    this,
+    data.subscription_id,
+    data.document_id,
+    data.fields
+  );
   debug('subscription "%s" for socket id "%s"', sub.id, sid);
 
   if (this.ids[sid]) {
