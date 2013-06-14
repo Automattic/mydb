@@ -25,10 +25,29 @@ var posts = mongo.get('posts-' + Date.now());
  */
 
 function create(){
-  return express()
-    .use(express.cookieParser())
-    .use(express.session({ secret: 'test' }))
-    .use(expose({ mongo: mongo }));
+  var app = express()
+  .use(express.cookieParser())
+  .use(express.session({ secret: 'test' }))
+  .use(expose({
+    mongo: mongo,
+    url: function(){
+      return 'http://localhost:' + app.port;
+    }
+  }));
+  return app;
+}
+
+/**
+ * Listen helper.
+ */
+
+function listen(server, app, fn){
+  server.listen(function(err){
+    if (err) throw err;
+    var port = server.address().port;
+    app.port = port;
+    fn(port);
+  });
 }
 
 /**
@@ -71,8 +90,8 @@ describe('mydb', function(){
         res.send(posts.findOne({ title: 'Test' }));
       });
 
-      httpServer.listen(function(){
-        var db = client('ws://localhost:' + httpServer.address().port);
+      listen(httpServer, app, function(port){
+        var db = client('ws://localhost:' + port);
         var doc = db.get('/somedoc', function(){
           expect(doc.title).to.be('Test');
           done();
@@ -85,8 +104,8 @@ describe('mydb', function(){
       var httpServer = http(app);
       var mydb = server(httpServer);
 
-      httpServer.listen(function(){
-        var db = client('ws://localhost:' + httpServer.address().port);
+      listen(httpServer, app, function(port){
+        var db = client('ws://localhost:' + port);
         var doc = db.get('/wtf', function(err){
           expect(err).to.be.an(Error);
           expect(err.url).to.match(/\/wtf/);
@@ -107,8 +126,8 @@ describe('mydb', function(){
         res.send(posts.findOne({ title: 'Tobi' }));
       });
 
-      httpServer.listen(function(){
-        var db = client('ws://localhost:' + httpServer.address().port);
+      listen(httpServer, app, function(port){
+        var db = client('ws://localhost:' + port);
         var doc = db.get('/doc', function(){
           expect(doc.title).to.be('Tobi');
           doc.on('title', function(v){
@@ -136,8 +155,8 @@ describe('mydb', function(){
         res.send(posts.findOne({ title: 'Tobi' }));
       });
 
-      httpServer.listen(function(){
-        var db = client('ws://localhost:' + httpServer.address().port);
+      listen(httpServer, app, function(port){
+        var db = client('ws://localhost:' + port);
         var doc = db.get('/doc', function(){
           expect(doc.title).to.be('Tobi');
           expect(doc.tags.length).to.be(3);
@@ -184,8 +203,8 @@ describe('mydb', function(){
         res.send(posts.findOne({ test: 'test' }));
       });
 
-      httpServer.listen(function(){
-        var db = client('ws://localhost:' + httpServer.address().port);
+      listen(httpServer, app, function(port){
+        var db = client('ws://localhost:' + port);
         var doc = db.get('/doc', function(){
           doc.on('likes', function(v){
             expect(v).to.eql(['tobi']);
@@ -212,8 +231,8 @@ describe('mydb', function(){
         res.send(posts.findOne({ test: 'ha' }, '-dislikes'));
       });
 
-      httpServer.listen(function(){
-        var db = client('ws://localhost:' + httpServer.address().port);
+      listen(httpServer, app, function(port){
+        var db = client('ws://localhost:' + port);
         var doc = db.get('/doc', function(){
           expect(doc.test).to.be('ha');
           expect(doc.likes).to.eql(['a']);
@@ -259,8 +278,8 @@ describe('mydb', function(){
         res.send(posts.findOne({ haha: 'test2' }));
       });
 
-      httpServer.listen(function(){
-        var db = client('ws://localhost:' + httpServer.address().port);
+      listen(httpServer, app, function(port){
+        var db = client('ws://localhost:' + port);
         var doc1 = db.get('/', function(){
           expect(doc1.haha).to.be('test');
           doc1.on('haha', function(){
@@ -303,8 +322,8 @@ describe('mydb', function(){
         res.send(posts.findOne({ x: 'y' }));
       });
 
-      httpServer.listen(function(){
-        var db = client('ws://localhost:' + httpServer.address().port);
+      listen(httpServer, app, function(port){
+        var db = client('ws://localhost:' + port);
         var doc1 = db.get('/', function(){
           done(new Error('Nope'));
         });
@@ -323,8 +342,8 @@ describe('mydb', function(){
       var app = create();
       var httpServer = http(app);
       var mydb = server(httpServer);
-      httpServer.listen(function(){
-        var db = client('ws://localhost:' + httpServer.address().port);
+      listen(httpServer, app, function(port){
+        var db = client('ws://localhost:' + port);
         var doc1 = db.get('/');
         expect(doc1.$readyState()).to.be('unloaded');
         doc1.destroy(function(){
@@ -345,8 +364,8 @@ describe('mydb', function(){
         res.send(posts.findOne({ tobi: 'a' }));
       });
 
-      httpServer.listen(function(){
-        var db = client('ws://localhost:' + httpServer.address().port);
+      listen(httpServer, app, function(port){
+        var db = client('ws://localhost:' + port);
         var doc = db.get('/');
         doc.get('tobi', function(v){
           expect(v).to.be('a');
@@ -367,8 +386,8 @@ describe('mydb', function(){
         res.send(posts.findOne({ tobi: '£' }));
       });
 
-      httpServer.listen(function(){
-        var db = client('ws://localhost:' + httpServer.address().port);
+      listen(httpServer, app, function(port){
+        var db = client('ws://localhost:' + port);
         var doc = db.get('/');
         var i = 0;
         var vals = ['£', 'pp'];
@@ -393,8 +412,8 @@ describe('mydb', function(){
         res.send(posts.findOne({ tests: 'array' }));
       });
 
-      httpServer.listen(function(){
-        var db = client('ws://localhost:' + httpServer.address().port);
+      listen(httpServer, app, function(port){
+        var db = client('ws://localhost:' + port);
         var doc = db.get('/');
         var i = 0;
         var vals = ['a', 'b', 'c', 'd', 'e'];
@@ -432,12 +451,12 @@ describe('mydb', function(){
         res.send(posts.findOne({ some_random: 'stuff' }));
       });
 
-      httpServer.listen(function(){
+      listen(httpServer, app, function(port){
         request(app)
         .get('/')
         .end(function(err, res){
           if (err) return done(err);
-          var db = client('ws://localhost:' + httpServer.address().port, {
+          var db = client('ws://localhost:' + port, {
             headers: {
               Cookie: res.headers['set-cookie'][0].split(';')[0]
             }
@@ -525,12 +544,12 @@ describe('mydb', function(){
         res.send(200);
       });
 
-      httpServer.listen(function(){
+      listen(httpServer, app, function(port){
         request(app)
         .get('/')
         .end(function(err, res){
           var cookie = res.headers['set-cookie'][0].split(';')[0];
-          var db = client('ws://localhost:' + httpServer.address().port, {
+          var db = client('ws://localhost:' + port, {
             headers: { Cookie: cookie }
           });
           var doc = db.get('/session', function(){
@@ -572,8 +591,7 @@ describe('mydb', function(){
         });
       });
 
-      httpServer.listen(function(){
-        var port = httpServer.address().port;
+      listen(httpServer, app, function(port){
         request(app)
         .get('/')
         .expect(200)
@@ -635,8 +653,8 @@ describe('mydb', function(){
         res.send(posts.findOne({ testing: 'rename' }));
       });
 
-      httpServer.listen(function(){
-        var db = client('ws://localhost:' + httpServer.address().port);
+      listen(httpServer, app, function(port){
+        var db = client('ws://localhost:' + port);
         var total = 2;
         var doc = db.get('/', function(){
           posts.update(doc._id, { $rename: { testing: 'woot' } });
@@ -662,8 +680,8 @@ describe('mydb', function(){
         res.send(posts.findOne({ pull: 'emall' }));
       });
 
-      httpServer.listen(function(){
-        var db = client('ws://localhost:' + httpServer.address().port);
+      listen(httpServer, app, function(port){
+        var db = client('ws://localhost:' + port);
         var doc = db.get('/', function(){
           var total = 2;
           posts.update(doc._id, { $pull: { letspull: 1 } });
@@ -691,8 +709,8 @@ describe('mydb', function(){
         res.send(posts.findOne({ shouldbe: 'there' }));
       });
 
-      httpServer.listen(function(){
-        var db = client('ws://localhost:' + httpServer.address().port);
+      listen(httpServer, app, function(port){
+        var db = client('ws://localhost:' + port);
         var doc = db.get('/', function(){
           doc.destroy(function(){
             doc.load('/2', function(){
@@ -721,8 +739,8 @@ describe('mydb', function(){
         res.send(posts.findOne({ a: 'different tale' }));
       });
 
-      httpServer.listen(function(){
-        var db = client('ws://localhost:' + httpServer.address().port);
+      listen(httpServer, app, function(port){
+        var db = client('ws://localhost:' + port);
         var doc = db.get('/', function(){
           done(new Error('Unexpected'));
         });
@@ -744,8 +762,8 @@ describe('mydb', function(){
         res.send(posts.findOne({ a: 'wa wa wa' }));
       });
 
-      httpServer.listen(function(){
-        var db = client('ws://localhost:' + httpServer.address().port);
+      listen(httpServer, app, function(port){
+        var db = client('ws://localhost:' + port);
         var doc = db.get('/');
         doc.ready(function(){});
         doc.ready(function(){
@@ -773,8 +791,8 @@ describe('mydb', function(){
         res.send(posts.findOne({ hi: 'some fields' }, { fields: { hi: 1, bye: 1 } }));
       });
 
-      httpServer.listen(function(){
-        var db = client('ws://localhost:' + httpServer.address().port);
+      listen(httpServer, app, function(port){
+        var db = client('ws://localhost:' + port);
         var doc = db.get('/');
         doc.ready(function(){
           expect(doc.hi).to.be('some fields');
@@ -796,8 +814,8 @@ describe('mydb', function(){
         res.send(posts.findOne({ hi: 'some fields 2' }, 'hi bye'));
       });
 
-      httpServer.listen(function(){
-        var db = client('ws://localhost:' + httpServer.address().port);
+      listen(httpServer, app, function(port){
+        var db = client('ws://localhost:' + port);
         var doc = db.get('/');
         doc.ready(function(){
           expect(doc.hi).to.be('some fields 2');
@@ -819,8 +837,8 @@ describe('mydb', function(){
         res.send(posts.findOne({ hi: 'some fields 3' }, ['hi', 'bye']));
       });
 
-      httpServer.listen(function(){
-        var db = client('ws://localhost:' + httpServer.address().port);
+      listen(httpServer, app, function(port){
+        var db = client('ws://localhost:' + port);
         var doc = db.get('/');
         doc.ready(function(){
           expect(doc.hi).to.be('some fields 3');
@@ -843,8 +861,8 @@ describe('mydb', function(){
         res.send(posts.findById(id, ['hi', 'bye']));
       });
 
-      httpServer.listen(function(){
-        var db = client('ws://localhost:' + httpServer.address().port);
+      listen(httpServer, app, function(port){
+        var db = client('ws://localhost:' + port);
         var doc = db.get('/');
         doc.ready(function(){
           expect(doc.hi).to.be('some fields 4');
@@ -883,8 +901,8 @@ describe('mydb', function(){
         res.send(posts.findById(id, ['hi', 'bye']));
       });
 
-      httpServer.listen(function(){
-        var db = client('ws://localhost:' + httpServer.address().port);
+      listen(httpServer, app, function(port){
+        var db = client('ws://localhost:' + port);
         var doc = db.get('/');
         doc.ready(function(){
           expect(doc.hi).to.be('some 5');
@@ -925,8 +943,8 @@ describe('mydb', function(){
         res.send(posts.findOne(id, { fields: { _id: 1, hi: { $slice: -3 } } }));
       });
 
-      httpServer.listen(function(){
-        var db = client('ws://localhost:' + httpServer.address().port);
+      listen(httpServer, app, function(port){
+        var db = client('ws://localhost:' + port);
         var doc = db.get('/');
         doc.ready(function(){
           expect(doc.b).to.be(undefined);
