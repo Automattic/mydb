@@ -58,9 +58,13 @@ Subscription.prototype.subscribe = function(){
     this.redis.subscribe(this.oid, function(err){
       if (err) return self.emit('error', err);
       self.readyState = 'subscribed';
+      self.emit('subscribed');
     });
   } else {
     this.readyState = 'subscribed';
+    setTimeout(function(){
+      self.emit('subscribed');
+    }, 0);
   }
 
   var n = ++this.server.subscriptions[this.oid];
