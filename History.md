@@ -1,4 +1,9 @@
 
+3.0.0 / 2013-06-14
+==================
+
+  * switch to RESTful subscriptions, ditch redis
+
 2.1.0 / 2013-04-15
 ==================
 
