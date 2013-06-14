@@ -71,12 +71,22 @@ function Server(http, opts){
 
   // initialize engine server
   this.http = http;
-  http.on('request', this.onrequest.bind(this));
   this.engine = engine.attach(http, opts.engine);
   this.engine.on('connection', this.onConnection.bind(this));
 
-  // capture SUBSCRIBE packets
-  this.subscribe();
+  // hijack again
+  var listeners = http.listeners('request').slice();
+  var self  = this;
+  http.on('request', function(req, res){
+    if (0 == req.url.indexOf('/mydb/')) {
+      debug('intercepting mydb api request');
+      self.onrequest(req, res);
+    } else {
+      for (var i = 0, l = listeners.length; i < l; i++) {
+        listeners[i].call(http, req, res);
+      }
+    }
+  });
 }
 
 /**
