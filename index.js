@@ -71,6 +71,7 @@ function Server(http, opts){
 
   // initialize engine server
   this.http = http;
+  http.on('request', this.onrequest.bind(this));
   this.engine = engine.attach(http, opts.engine);
   this.engine.on('connection', this.onConnection.bind(this));
 
@@ -144,23 +145,105 @@ Server.prototype.onclose = function(client){
  * @api private
  */
 
-Server.prototype.subscribe = function(){
-  var sub = redis.createClient(this.redisUri.port, this.redisUri.host);
+Server.prototype.subscribe = function(data, fn){
+  var sid = data.s;
+  var sub = new Subscription(this, data.h, data.i, data.f);
+  debug('subscription "%s" for socket id "%s"', sub.id, sid);
+
+  if (this.ids[sid]) {
+    this.ids[sid].add(sub);
+  } else {
+    this.buffer(sid, sub);
+  }
+
+  sub.once('error', onerror);
+  sub.on('subscribed', onsubscribe);
+
+  function onerror(err){
+    sub.off('subscribed', onsubscribe);
+    fn(err);
+  }
+
+  function onsubscribe(){
+    sub.off('error', onerror);
+    fn(null);
+  }
+};
+
+/**
+ * Handle an incoming HTTP request.
+ *
+ * @param {String} socket id
+ * @api private
+ */
+
+Server.prototype.onrequest = function(req, res){
+  if ('/mydb_subscribe' != req.url) return;
+  if ('POST' != req.method) {
+    res.send(400, 'Method unsupported');
+    return;
+  }
+
+  var signature = req.headers['x-mydb-signature'];
+  if (!signature) {
+    res.send(400, 'Missing `X-MyDB-Signature` header');
+    return;
+  }
+
+  var body = '';
   var self = this;
-  sub.subscribe('MYDB_SUBSCRIBE');
-  sub.on('message', function(channel, packet){
-    var data = JSON.parse(packet);
-    var sid = data.s;
 
-    var sub = new Subscription(self, data.h, data.i, data.f);
-    debug('subscription "%s" for socket id "%s"', sub.id, sid);
+  function ondata(data){
+    body += data;
+  }
 
-    if (self.ids[sid]) {
-      self.ids[sid].add(sub);
-    } else {
-      self.buffer(sid, sub);
+  function onend(){
+    cleanup();
+
+    if (signature != sign(body, self.secret)) {
+      debug('bad signature');
+      res.writeHead(403);
+      res.end('Bad signature');
+      return;
     }
-  });
+
+    var data;
+    try {
+      data = JSON.parse(body);
+    } catch(e){
+      debug('json parse error');
+      res.writeHead(400);
+      res.end('Bad JSON body');
+      return;
+    }
+
+    self.subscribe(function(err){
+      if (err) {
+        debug('subscription error %j', err);
+        res.writeHead(500);
+        res.end('Subscription error');
+        return;
+      }
+
+      res.send(200);
+    });
+  }
+
+  function cleanup(){
+    req.off('data', ondata);
+    req.off('end', onend);
+    req.off('error', onerror);
+  }
+
+  function onerror(){
+    debug('request error');
+    cleanup();
+  }
+
+  req.setEncoding('utf8');
+  req.on('end', onend);
+  req.on('data', ondata);
+  req.on('error', onerror);
 };
 
 /**
@@ -224,4 +307,19 @@ function parse(uri){
   var host = pieces.shift();
   var port = pieces.pop();
   return { host: host, port: port };
+}
+
+/**
+ * HMac signing helper.
+ *
+ * @param {String} data
+ * @param {String} secret
+ * @api private
+ */
+
+function sign(data, secret){
+  return crypto
+  .createHmac('sha1', secret)
+  .update(data)
+  .digest('hex');
 }
