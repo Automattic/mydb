@@ -196,13 +196,15 @@ Server.prototype.subscribe = function(data, fn){
 Server.prototype.onrequest = function(req, res){
   if ('/mydb/subscribe' != req.url) return;
   if ('POST' != req.method) {
-    res.send(400, 'Method unsupported');
+    res.writeHead(400);
+    res.end('Method unsupported');
     return;
   }
 
   var signature = req.headers['x-mydb-signature'];
   if (!signature) {
-    res.send(400, 'Missing `X-MyDB-Signature` header');
+    res.writeHead(400);
+    res.end('Missing `X-MyDB-Signature` header');
     return;
   }
 
@@ -241,7 +243,8 @@ Server.prototype.onrequest = function(req, res){
         return;
       }
 
-      res.send(200);
+      res.writeHead(200);
+      res.end();
     });
   }
 
