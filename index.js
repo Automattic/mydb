@@ -230,9 +230,9 @@ Server.prototype.onrequest = function(req, res){
       res.writeHead(400);
       res.end('Bad JSON body');
       return;
-    }
+   }
 
-    self.subscribe(function(err){
+    self.subscribe(data, function(err){
       if (err) {
         debug('subscription error %j', err);
         res.writeHead(500);
