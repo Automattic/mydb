@@ -6,6 +6,7 @@
 var engine = require('engine.io');
 var redis = require('redis');
 var url = require('url');
+var crypto = require('crypto');
 var Client = require('./client');
 var Subscription = require('./subscription');
 var EventEmitter = require('events').EventEmitter;
@@ -55,6 +56,9 @@ function Server(http, opts){
   this.redisSub.setMaxListeners(0);
   this.redisUri = uri;
   this.subscriptions = {};
+
+  // secret for validating subscription payloads
+  this.secret = opts.secret || 'youareagoodmydbcracker';
 
   // subscription timeout
   this.subTimeout = null == opts.subTimeout ? 60000 : opts.subTimeout;
