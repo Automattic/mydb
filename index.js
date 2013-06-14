@@ -175,12 +175,12 @@ Server.prototype.subscribe = function(data, fn){
   sub.on('subscribed', onsubscribe);
 
   function onerror(err){
-    sub.off('subscribed', onsubscribe);
+    sub.removeListener('subscribed', onsubscribe);
     fn(err);
   }
 
   function onsubscribe(){
-    sub.off('error', onerror);
+    sub.removeListener('error', onerror);
     fn(null);
   }
 };
@@ -245,9 +245,9 @@ Server.prototype.onrequest = function(req, res){
   }
 
   function cleanup(){
-    req.off('data', ondata);
-    req.off('end', onend);
-    req.off('error', onerror);
+    req.removeListener('data', ondata);
+    req.removeListener('end', onend);
+    req.removeListener('error', onerror);
   }
 
   function onerror(){
