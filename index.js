@@ -193,7 +193,7 @@ Server.prototype.subscribe = function(data, fn){
  */
 
 Server.prototype.onrequest = function(req, res){
-  if ('/mydb_subscribe' != req.url) return;
+  if ('/mydb/subscribe' != req.url) return;
   if ('POST' != req.method) {
     res.send(400, 'Method unsupported');
     return;
