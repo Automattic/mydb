@@ -75,8 +75,9 @@ function Server(http, opts){
   this.engine.on('connection', this.onConnection.bind(this));
 
   // hijack again
-  var listeners = http.listeners('request').slice();
   var self  = this;
+  var listeners = http.listeners('request').slice();
+  http.removeAllListeners('request');
   http.on('request', function(req, res){
     if (0 == req.url.indexOf('/mydb/')) {
       debug('intercepting mydb api request');
