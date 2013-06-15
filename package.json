@@ -4,7 +4,7 @@
   "private": true,
   "description": "MyDB realtime server",
   "dependencies": {
-    "engine.io": "0.5.0",
+    "engine.io": "0.6.2",
     "redis": "0.8.3",
     "debug": "*",
     "uid2": "*",
