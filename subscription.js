@@ -62,9 +62,9 @@ Subscription.prototype.subscribe = function(){
     });
   } else {
     this.readyState = 'subscribed';
-    setTimeout(function(){
+    process.nextTick(function(){
       self.emit('subscribed');
-    }, 0);
+    });
   }
 
   var n = ++this.server.subscriptions[this.oid];
