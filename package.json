@@ -5,7 +5,7 @@
   "description": "MyDB realtime server",
   "dependencies": {
     "engine.io": "0.5.0",
-    "redis": "0.8.1",
+    "redis": "0.8.3",
     "debug": "*",
     "uid2": "*",
     "mongo-minify": "git+ssh://git@github.com:LearnBoost/mongo-minify.git#0.1.0"
