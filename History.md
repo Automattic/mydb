@@ -1,4 +1,10 @@
 
+3.0.1 / 2013-06-14
+==================
+
+  * subscription: use `nextTick` instead of `setTimeout`
+  * package: bump redis to fix all the issues
+
 3.0.0 / 2013-06-14
 ==================
 
