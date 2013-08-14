@@ -165,6 +165,7 @@ Server.prototype.subscribe = function(data, fn){
     data.fields
   );
   debug('subscription "%s" for socket id "%s"', sub.id, sid);
+  var start = Date.now();
 
   if (this.ids[sid]) {
     this.ids[sid].add(sub);
@@ -181,6 +182,7 @@ Server.prototype.subscribe = function(data, fn){
   }
 
   function onsubscribe(){
+    debug('subscribe took %dms', Date.now() - start);
     sub.removeListener('error', onerror);
     fn(null);
   }
