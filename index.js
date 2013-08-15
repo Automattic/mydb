@@ -53,6 +53,7 @@ function Server(http, opts){
   uri.port = uri.port || 6379;
   this.redis = redis.createClient(uri.port, uri.host);
   this.redisSub = redis.createClient(uri.port, uri.host);
+  this.redisSub.on('message', this.onpub.bind(this));
   this.redisSub.setMaxListeners(0);
   this.redisUri = uri;
   this.subscriptions = {};
@@ -313,6 +314,28 @@ Server.prototype.buffer = function(sid, sub){
     sub.removeListener('destroy', ondestroy);
     clearTimeout(timer);
   });
+};
+
+/**
+ * Called upon redis subscriber message.
+ *
+ * @api private
+ */
+
+Server.prototype.onpub = function(channel, msg){
+  var obj;
+
+  if (!this.subscriptions[channel]) return;
+
+  try {
+    obj = JSON.parse(msg);
+  } catch(e){
+    debug('json parse error');
+    this.emit('error', e);
+    return;
+  }
+
+  this.emit(channel, obj);
 };
 
 /**

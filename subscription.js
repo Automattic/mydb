@@ -32,7 +32,7 @@ function Subscription(server, id, oid, fields){
   this.fields = fields || {};
   this.ops = [];
   this.shouldBuffer = true;
-  this.onmessage = this.onmessage.bind(this);
+  this.onpacket = this.onpacket.bind(this);
   this.subscribe();
 }
 
@@ -70,8 +70,7 @@ Subscription.prototype.subscribe = function(){
   var n = ++this.server.subscriptions[this.oid];
   debug('%d active subscriptions for "%s"', n, this.oid);
 
-  // add `message` handler
-  this.redis.on('message', this.onmessage);
+  this.server.on(this.oid, this.onpacket);
 };
 
 /**
@@ -93,45 +92,32 @@ Subscription.prototype.op = function(fn){
 };
 
 /**
- * Called for all subscriptions messages.
+ * Handle packets for this document.
  *
  * @api private
  */
 
-Subscription.prototype.onmessage = function(channel, message){
-  if (this.oid == channel) {
-    debug('captured operation for %s (oid: %s)', this.id, this.oid);
-    var obj;
+Subscription.prototype.onpacket = function(obj){
+  // minify query based on subscription fields restrictions
+  var qry = minify(obj[1], this.fields);
 
-    try {
-      obj = JSON.parse(message);
-    } catch(e){
-      debug('json parse error');
-      this.emit('error', e);
-      return;
+  if (Object.keys(qry).length) {
+    if (obj[0]._id) {
+      debug('stripping `_id` from filter');
+      delete obj[0]._id;
     }
 
-    // minify query based on subscription fields restrictions
-    var qry = minify(obj[1], this.fields);
+    obj[1] = qry;
 
-    if (Object.keys(qry).length) {
-      if (obj[0]._id) {
-        debug('stripping `_id` from filter');
-        delete obj[0]._id;
-      }
-
-      obj[1] = qry;
-
-      if (this.shouldBuffer) {
-        debug('buffering op %j until payload is obtained', obj);
-        this.ops.push(obj);
-      } else {
-        debug('emitting op %j', obj);
-        this.emit('op', obj);
-      }
+    if (this.shouldBuffer) {
+      debug('buffering op %j until payload is obtained', obj);
+      this.ops.push(obj);
     } else {
-      debug('operation %j ignored minified with %j', obj[1], this.fields);
+      debug('emitting op %j', obj);
+      this.emit('op', obj);
     }
+  } else {
+    debug('operation %j ignored minified with %j', obj[1], this.fields);
   }
 };
 
@@ -145,8 +131,10 @@ Subscription.prototype.destroy = function(){
   if ('subscribing' == this.readyState || 'subscribed' == this.readyState) {
     debug('destroying "%s" (state: %s)', this.id, this.readyState);
     var self = this;
-    this.ops = null;
-    this.payload = null;
+    delete this.ops;
+    delete this.payload;
+
+    this.server.removeListener(this.oid, this.onpacket);
 
     // remove channel subscription if needed
     this.server.subscriptions[this.oid]--;
@@ -156,9 +144,6 @@ Subscription.prototype.destroy = function(){
         debug('confirmed "%s" unsubscription', self.oid);
       });
     }
-
-    // remove `message` listener
-    this.redis.removeListener('message', this.onmessage);
 
     // change ready state
     this.readyState = 'unsubscribed';

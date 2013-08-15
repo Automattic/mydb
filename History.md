@@ -1,4 +1,9 @@
 
+3.0.5 / 2013-08-15
+==================
+
+  * subscription: refactor to potentially make it more efficient
+
 3.0.4 / 2013-08-15
 ==================
 
