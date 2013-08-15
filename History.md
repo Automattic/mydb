@@ -1,4 +1,9 @@
 
+3.0.4 / 2013-08-15
+==================
+
+  * client: temporarily switching to pseudorandom
+
 3.0.3 / 2013-08-14
 ==================
 
