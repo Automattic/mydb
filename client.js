@@ -58,7 +58,7 @@ Client.prototype.sid = function(){
   if (query && query.mydb_id){
     return query.mydb_id;
   } else {
-    var id = uid(20);
+    var id = String(Math.random()).substr(3) + String(Math.random()).substr(3);
     this.send({ e: 'i', i: id });
     return id;
   }
