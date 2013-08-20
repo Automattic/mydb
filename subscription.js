@@ -6,6 +6,7 @@
 var EventEmitter = require('events').EventEmitter;
 var redis = require('redis').createClient;
 var minify = require('mongo-minify');
+var clone = require('clone-component');
 var debug = require('debug')('mydb:subscription');
 
 /**
@@ -99,6 +100,7 @@ Subscription.prototype.op = function(fn){
 
 Subscription.prototype.onpacket = function(obj){
   // minify query based on subscription fields restrictions
+  obj = clone(obj);
   var qry = minify(obj[1], this.fields);
 
   if (Object.keys(qry).length) {
