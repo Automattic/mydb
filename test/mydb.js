@@ -939,24 +939,45 @@ describe('mydb', function(){
       var id = mongo.id();
       posts.insert({ _id: id, hi: [1,2,3,4,5], b: 2 });
 
+      app.get('/a', function(req, res){
+        res.send(posts.findOne(id, 'b'));
+      });
+
       app.get('/', function(req, res){
         res.send(posts.findOne(id, { fields: { _id: 1, hi: { $slice: -3 } } }));
       });
 
       listen(httpServer, app, function(port){
         var db = client('ws://localhost:' + port);
-        var doc = db.get('/');
-        doc.ready(function(){
-          expect(doc.b).to.be(undefined);
-          expect(doc.hi).to.eql([3,4,5]);
+        var doc1 = db.get('/a', function(err){
+          if (err) return done(err);
 
-          posts.update(id, { $set: { b: 2 }, $push: { hi: 6 } });
-          doc.once('hi', function(){
+          expect(doc1.b).to.be(2);
+          expect(doc1.hi);
+
+          posts.update(id, { $set: { c: 3, b: 3 } });
+
+          doc1.once('b', function(){
             setTimeout(function(){
-              expect(doc.b).to.be(undefined);
-              expect(doc.hi).to.eql([3,4,5,6]);
-              done();
-            }, 10);
+              expect(doc1.c).to.be(undefined);
+              expect(doc1.b).to.be(3);
+
+              var doc = db.get('/');
+              doc.ready(function(){
+                expect(doc.b).to.be(undefined);
+                expect(doc.c).to.be(undefined);
+                expect(doc.hi).to.eql([3,4,5]);
+
+                posts.update(id, { $set: { b: 2 }, $push: { hi: 6 } });
+                doc.once('hi', function(){
+                  setTimeout(function(){
+                    expect(doc.b).to.be(undefined);
+                    expect(doc.hi).to.eql([3,4,5,6]);
+                    done();
+                  }, 10);
+                });
+              });
+            }, 0);
           });
         });
       });
