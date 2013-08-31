@@ -4,7 +4,7 @@
   "private": true,
   "description": "MyDB realtime server",
   "dependencies": {
-    "engine.io": "0.7.8",
+    "engine.io": "0.7.9",
     "redis": "0.8.3",
     "debug": "*",
     "uid2": "*",
@@ -17,7 +17,7 @@
     "supertest": "*",
     "express": "3.0.0rc4",
     "mydb-driver": "git+ssh://git@github.com:LearnBoost/mydb-driver.git#0.5.2",
-    "mydb-client": "git+ssh://git@github.com:LearnBoost/mydb-client.git#3.4.6",
+    "mydb-client": "git+ssh://git@github.com:LearnBoost/mydb-client.git#3.4.7",
     "mydb-expose": "git+ssh://git@github.com:LearnBoost/mydb-expose.git#2.0.6"
   }
 }
