@@ -7,7 +7,7 @@
     "redis": "0.8.3",
     "debug": "*",
     "uid2": "*",
-    "mongo-minify": "git+ssh://git@github.com:LearnBoost/mongo-minify.git#0.1.0",
+    "mongo-minify": "git+ssh://git@github.com:cloudup/mongo-minify.git#0.1.0",
     "clone-component": "*"
   },
   "devDependencies": {
@@ -15,8 +15,8 @@
     "expect.js": "*",
     "supertest": "*",
     "express": "3.0.0rc4",
-    "mydb-driver": "git+ssh://git@github.com:LearnBoost/mydb-driver.git#0.5.2",
-    "mydb-client": "git+ssh://git@github.com:LearnBoost/mydb-client.git#3.4.7",
-    "mydb-expose": "git+ssh://git@github.com:LearnBoost/mydb-expose.git#2.0.6"
+    "mydb-driver": "git+ssh://git@github.com:cloudup/mydb-driver.git#0.5.2",
+    "mydb-client": "git+ssh://git@github.com:cloudup/mydb-client.git#3.4.7",
+    "mydb-expose": "git+ssh://git@github.com:cloudup/mydb-expose.git#2.0.6"
   }
 }
