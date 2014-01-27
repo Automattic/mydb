@@ -7,7 +7,7 @@
     "redis": "0.8.3",
     "debug": "*",
     "uid2": "*",
-    "mongo-minify": "git+ssh://git@github.com:LearnBoost/mongo-minify.git#0.1.0",
+    "mongo-minify": "0.1.0",
     "clone-component": "*"
   },
   "devDependencies": {
