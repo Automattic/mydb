@@ -7,7 +7,7 @@
     "redis": "0.8.3",
     "debug": "*",
     "uid2": "*",
-    "mongo-minify": "0.1.0",
+    "mongo-minify": "0.1.1",
     "clone-component": "*"
   },
   "devDependencies": {
