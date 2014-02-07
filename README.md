@@ -24,6 +24,12 @@ http.listen(3000);
 
   Attaches the mydb server to a `http.Server`.
 
+## Testing
+In order to run the tests
+* Start Redis: `redis-server`
+* Start MongoDB: `mongod`
+* Run the tests: `make test`
+
 ## License
 
 MIT
