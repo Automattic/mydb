@@ -2,21 +2,21 @@
 3.1.1 / 2013-08-30
 ==================
 
- * package: bump `engine.io` and `mydb-client`
+  * package: bump `engine.io` and `mydb-client`
 
 3.1.0 / 2013-08-30
 ==================
 
- * package: bump engine.io
- * package: bump mydb-client
+  * package: bump engine.io
+  * package: bump mydb-client
 
 3.0.6 / 2013-08-20
 ==================
 
- * package: add clone component dep
- * subscription: add cloning step
- * test: turn it into failing test by multiplexing subscriptions with different minifications
- * package: bump deps
+  * package: add clone component dep
+  * subscription: add cloning step
+  * test: turn it into failing test by multiplexing subscriptions with different minifications
+  * package: bump deps
 
 3.0.5 / 2013-08-15
 ==================
@@ -448,7 +448,7 @@
 
   * manager: introduced Database with join/leave events
 
-0.4.6 / 2012-07-22 
+0.4.6 / 2012-07-22
 ==================
 
   * manager: avoid instanceof problems across modules
