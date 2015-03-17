@@ -3,8 +3,8 @@
   "version": "3.1.1",
   "description": "MyDB realtime server",
   "dependencies": {
-    "engine.io": "0.7.9",
-    "redis": "0.8.3",
+    "engine.io": "1.5.1",
+    "redis": "0.12.1",
     "debug": "*",
     "uid2": "*",
     "mongo-minify": "0.1.1",
@@ -16,7 +16,7 @@
     "supertest": "*",
     "express": "3.0.0rc4",
     "mydb-driver": "0.5.2",
-    "mydb-client": "3.5.0",
+    "mydb-client": "3.7.0",
     "mydb-expose": "2.1.0"
   }
 }
