@@ -1,4 +1,14 @@
 
+3.2.0 / 2015-03-16
+==================
+
+  * added testing instructions to the README (#33, @gterrono)
+  * fixed typo in readme (#28, @thebyrd)
+  * package: bump `engine.io` and `mydb-client`
+  * package: bump `redis`
+  * package: bump "mongo-minify" to v0.1.1 (#32, @gterrono)
+  * package: specify versions
+
 3.1.1 / 2013-08-30
 ==================
 
