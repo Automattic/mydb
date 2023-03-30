@@ -4,7 +4,6 @@
  */
 
 var EventEmitter = require('events').EventEmitter;
-var redis = require('redis').createClient;
 var minify = require('mongo-minify');
 var clone = require('clone-component');
 var debug = require('debug')('mydb:subscription');
@@ -56,11 +55,17 @@ Subscription.prototype.subscribe = function(){
   if (!this.server.subscriptions[this.oid]) {
     debug('redis subscribe %s', this.oid);
     this.server.subscriptions[this.oid] = 0;
-    this.redis.subscribe(this.oid, function(err){
-      if (err) return self.emit('error', err);
-      self.readyState = 'subscribed';
-      self.emit('subscribed');
-    });
+    this.redis.subscribe(
+      this.oid,
+      ( message, channel ) => {
+        self.server.onpub( channel, message );
+      }
+    )
+      .then( () => {
+        self.readyState = 'subscribed';
+        self.emit('subscribed');
+      } )
+      .catch( ( e ) => self.emit( 'error', e ) );
   } else {
     this.readyState = 'subscribed';
     process.nextTick(function(){
@@ -142,9 +147,10 @@ Subscription.prototype.destroy = function(){
     this.server.subscriptions[this.oid]--;
     if (!this.server.subscriptions[this.oid]) {
       debug('redis unsubscribe %s', this.oid);
-      this.redis.unsubscribe(this.oid, function(){
-        debug('confirmed "%s" unsubscription', self.oid);
-      });
+      this.redis.unsubscribe(this.oid)
+        .then( () => {
+          debug('confirmed "%s" unsubscription', self.oid )
+        } );
     }
 
     // change ready state

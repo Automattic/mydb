@@ -28,8 +28,12 @@ http.listen(3000);
 
 ## Testing
 In order to run the tests
-* Start Redis: `redis-server`
-* Start MongoDB: `mongod`
+* You can either:
+  * Start Redis: `redis-server`
+  * Start MongoDB: `mongod`
+* Or:
+  * Go to test/
+  * `docker-compose up`
 * Run the tests: `make test`
 
 ## License

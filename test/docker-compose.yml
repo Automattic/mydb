@@ -1,0 +1,10 @@
+version: "3.9"
+services:
+  mongo:
+    image: mongo:6-jammy
+    ports:
+      - 27017:27017
+  redis:
+    image: redis:6-alpine
+    ports:
+      - 6379:6379

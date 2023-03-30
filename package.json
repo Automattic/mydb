@@ -11,12 +11,14 @@
     "uid2": "*"
   },
   "devDependencies": {
+    "cookie-parser": "^1.4.6",
     "expect.js": "*",
     "express": "^4.18.2",
+    "express-session": "^1.17.3",
     "mocha": "*",
-    "mydb-client": "Automattic/mydb-client#update/node-dependencies-18",
-    "mydb-driver": "Automattic/mydb-driver#update/use-monk-branch",
-    "mydb-expose": "Automattic/mydb-expose#3.x",
+    "mydb-client": "https://github.com/Automattic/mydb-client.git#update/engineio-fix",
+    "mydb-driver": "https://github.com/Automattic/mydb-driver.git",
+    "mydb-expose": "https://github.com/Automattic/mydb-expose.git#3.x",
     "supertest": "*"
   }
 }
