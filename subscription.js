@@ -97,6 +97,15 @@ Subscription.prototype.op = function(fn){
   }
 };
 
+Subscription.prototype.queryCanBeEmittedOnMissingField = function ( obj ) {
+  if ( ! obj[1] ) {
+    return false;
+  }
+
+  const mongoFieldUpdateOperators = [ '$currentDate', '$inc', '$min', '$max', '$mul', '$set', '$setOnInsert', '$addToSet', '$pushAll', '$push' ];
+  return mongoFieldUpdateOperators.some( ( op ) => !! obj[1][ op ] );
+};
+
 /**
  * Handle packets for this document.
  *
@@ -108,6 +117,11 @@ Subscription.prototype.onpacket = function(obj){
   obj = clone(obj);
   var qry = minify(obj[1], this.fields);
 
+  if ( ! Object.keys(qry).length && this.queryCanBeEmittedOnMissingField( obj ) ) {
+    qry = obj[1];
+  }
+
+  debug('received op %j and query %j', obj, qry);
   if (Object.keys(qry).length) {
     if (obj[0]._id) {
       debug('stripping `_id` from filter');
