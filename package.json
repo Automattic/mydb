@@ -18,7 +18,7 @@
     "mocha": "*",
     "mydb-client": "https://github.com/Automattic/mydb-client.git#update/engineio-fix",
     "mydb-driver": "https://github.com/Automattic/mydb-driver.git",
-    "mydb-expose": "https://github.com/Automattic/mydb-expose.git#3.x",
+    "mydb-expose": "https://github.com/Automattic/mydb-expose.git#fix/mydb-expose-qwirks",
     "supertest": "*"
   }
 }
