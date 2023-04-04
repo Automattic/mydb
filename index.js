@@ -51,8 +51,8 @@ function Server(http, opts){
   // redis
   var uri = parse(opts.redis || 'localhost:6379');
   uri.port = uri.port || 6379;
-  this.redis = redis.createClient(uri.port, uri.host);
-  this.redisSub = redis.createClient(uri.port, uri.host);
+  this.redis = redis.createClient({ url: 'redis://' + uri.host + ':' + uri.port });
+  this.redisSub = redis.createClient({ url: 'redis://' + uri.host + ':' + uri.port });
   this.redisSub.setMaxListeners(0);
 
   this.redisSub.on('message', this.onpub.bind(this));
