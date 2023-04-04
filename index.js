@@ -76,7 +76,7 @@ function Server(http, opts){
   this.pending = {};
 
   opts.engine = opts.engine || {};
-  if ( ! 'allowEIO3' in opts.engine ) {
+  if ( ! ( 'allowEIO3' in opts.engine ) ) {
     opts.engine.allowEIO3 = true;
   }
 
