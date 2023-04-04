@@ -55,6 +55,8 @@ function Server(http, opts){
   this.redisSub = redis.createClient(uri.port, uri.host);
   this.redisSub.setMaxListeners(0);
 
+  this.redisSub.on('message', this.onpub.bind(this));
+
   this.redis.connect();
   this.redisSub.connect();
 
