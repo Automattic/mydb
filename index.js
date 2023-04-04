@@ -75,6 +75,8 @@ function Server(http, opts){
   // pending subscriptions
   this.pending = {};
 
+  opts.engine = opts.engine || { allowEIO3: true };
+
   // initialize engine server
   this.http = http;
   this.engine = engine.attach(http, opts.engine);
