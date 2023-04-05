@@ -3,20 +3,22 @@
   "version": "3.2.0",
   "description": "MyDB realtime server",
   "dependencies": {
-    "engine.io": "1.5.1",
-    "redis": "0.12.1",
+    "clone-component": "*",
     "debug": "*",
-    "uid2": "*",
+    "engine.io": "^6.4.1",
     "mongo-minify": "0.1.1",
-    "clone-component": "*"
+    "redis": "^4.6.5",
+    "uid2": "*"
   },
   "devDependencies": {
-    "mocha": "*",
+    "cookie-parser": "^1.4.6",
     "expect.js": "*",
-    "supertest": "*",
-    "express": "3.0.0rc4",
-    "mydb-driver": "0.5.2",
-    "mydb-client": "3.7.0",
-    "mydb-expose": "2.1.0"
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "mocha": "*",
+    "mydb-client": "https://github.com/Automattic/mydb-client.git#update/engineio-fix",
+    "mydb-driver": "https://github.com/Automattic/mydb-driver.git",
+    "mydb-expose": "https://github.com/Automattic/mydb-expose.git#3.x",
+    "supertest": "*"
   }
 }

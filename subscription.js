@@ -4,7 +4,6 @@
  */
 
 var EventEmitter = require('events').EventEmitter;
-var redis = require('redis').createClient;
 var minify = require('mongo-minify');
 var clone = require('clone-component');
 var debug = require('debug')('mydb:subscription');
@@ -56,11 +55,17 @@ Subscription.prototype.subscribe = function(){
   if (!this.server.subscriptions[this.oid]) {
     debug('redis subscribe %s', this.oid);
     this.server.subscriptions[this.oid] = 0;
-    this.redis.subscribe(this.oid, function(err){
-      if (err) return self.emit('error', err);
-      self.readyState = 'subscribed';
-      self.emit('subscribed');
-    });
+    this.redis.subscribe(
+      this.oid,
+      ( message, channel ) => {
+        self.server.onpub( channel, message );
+      }
+    )
+      .then( () => {
+        self.readyState = 'subscribed';
+        self.emit('subscribed');
+      } )
+      .catch( ( e ) => self.emit( 'error', e ) );
   } else {
     this.readyState = 'subscribed';
     process.nextTick(function(){
@@ -92,6 +97,15 @@ Subscription.prototype.op = function(fn){
   }
 };
 
+Subscription.prototype.queryCanBeEmittedOnMissingField = function ( obj ) {
+  if ( ! obj[1] ) {
+    return false;
+  }
+
+  const mongoFieldUpdateOperators = [ '$currentDate', '$inc', '$min', '$max', '$mul', '$set', '$setOnInsert', '$addToSet', '$pushAll', '$push' ];
+  return mongoFieldUpdateOperators.some( ( op ) => !! obj[1][ op ] );
+};
+
 /**
  * Handle packets for this document.
  *
@@ -103,6 +117,11 @@ Subscription.prototype.onpacket = function(obj){
   obj = clone(obj);
   var qry = minify(obj[1], this.fields);
 
+  if ( ! Object.keys(qry).length && this.queryCanBeEmittedOnMissingField( obj ) ) {
+    qry = obj[1];
+  }
+
+  debug('received op %j and query %j', obj, qry);
   if (Object.keys(qry).length) {
     if (obj[0]._id) {
       debug('stripping `_id` from filter');
@@ -142,9 +161,10 @@ Subscription.prototype.destroy = function(){
     this.server.subscriptions[this.oid]--;
     if (!this.server.subscriptions[this.oid]) {
       debug('redis unsubscribe %s', this.oid);
-      this.redis.unsubscribe(this.oid, function(){
-        debug('confirmed "%s" unsubscription', self.oid);
-      });
+      this.redis.unsubscribe(this.oid)
+        .then( () => {
+          debug('confirmed "%s" unsubscription', self.oid )
+        } );
     }
 
     // change ready state

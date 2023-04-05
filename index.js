@@ -51,10 +51,13 @@ function Server(http, opts){
   // redis
   var uri = parse(opts.redis || 'localhost:6379');
   uri.port = uri.port || 6379;
-  this.redis = redis.createClient(uri.port, uri.host);
-  this.redisSub = redis.createClient(uri.port, uri.host);
-  this.redisSub.on('message', this.onpub.bind(this));
+  this.redis = redis.createClient({ url: 'redis://' + uri.host + ':' + uri.port });
+  this.redisSub = redis.createClient({ url: 'redis://' + uri.host + ':' + uri.port });
   this.redisSub.setMaxListeners(0);
+
+  this.redis.connect();
+  this.redisSub.connect();
+
   this.redisUri = uri;
   this.subscriptions = {};
 
@@ -69,6 +72,19 @@ function Server(http, opts){
 
   // pending subscriptions
   this.pending = {};
+
+  opts.engine = opts.engine || {};
+  if ( ! ( 'allowEIO3' in opts.engine ) ) {
+    opts.engine.allowEIO3 = true;
+  }
+
+  if ( process.env.NODE_ENV && 'development' === process.env.NODE_ENV ) {
+    opts.engine.cors = {
+      origin: '*',
+      methods: [ 'GET', 'POST', 'PUT', 'PATCH', 'OPTIONS', 'DELETE' ],
+      allowedHeaders: [ 'X-Requested-With', 'Content-Type', 'authorization' ]
+    };
+  }
 
   // initialize engine server
   this.http = http;

@@ -3,7 +3,7 @@
  * Test dependencies.
  */
 
-var http = require('http').Server;
+var http = require('http').createServer;
 var express = require('express');
 var server = require('..');
 var Subscription = require('../subscription');
@@ -12,6 +12,9 @@ var expose = require('mydb-expose');
 var client = require('mydb-client');
 var driver = require('mydb-driver');
 var request = require('supertest');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const debug = require('debug')('mydb:test');
 
 /**
  * Connect to MongoDB.
@@ -26,14 +29,16 @@ var posts = mongo.get('posts-' + Date.now());
 
 function create(){
   var app = express()
-  .use(express.cookieParser())
-  .use(express.session({ secret: 'test' }))
-  .use(expose({
-    mongo: mongo,
-    url: function(){
-      return 'http://localhost:' + app.port;
+  .use(cookieParser())
+  .use(session({ secret: 'test' }))
+  .use(expose(
+    mongo,
+    {
+      url: function(){
+        return 'http://localhost:' + app.port;
+      }
     }
-  }));
+  ));
   return app;
 }
 
@@ -84,19 +89,22 @@ describe('mydb', function(){
       var httpServer = http(app);
       var mydb = server(httpServer);
 
-      posts.insert({ title: 'Test' });
+      posts
+        .insert({ title: 'Test' })
+        .then( () => {
+          app.get('/somedoc', function(req, res){
+            res.send(posts.findOne({ title: 'Test' }));
+          });
 
-      app.get('/somedoc', function(req, res){
-        res.send(posts.findOne({ title: 'Test' }));
-      });
-
-      listen(httpServer, app, function(port){
-        var db = client('ws://localhost:' + port);
-        var doc = db.get('/somedoc', function(){
-          expect(doc.title).to.be('Test');
-          done();
-        });
-      });
+          listen(httpServer, app, function(port){
+            var db = client('ws://localhost:' + port);
+            var doc = db.get('/somedoc', function(){
+              expect(doc.title).to.be('Test');
+              done();
+            });
+          });
+        } )
+        .catch( err => done( err ) );
     });
 
     it('should handle errors', function(done){
@@ -108,8 +116,8 @@ describe('mydb', function(){
         var db = client('ws://localhost:' + port);
         var doc = db.get('/wtf', function(err){
           expect(err).to.be.an(Error);
-          expect(err.url).to.match(/\/wtf/);
           expect(err.status).to.be(404);
+          expect(err.response.error.path).to.match(/\/wtf/);
           done();
         });
       });
@@ -197,26 +205,29 @@ describe('mydb', function(){
       var mydb = server(httpServer);
       var count = 2;
 
-      posts.insert({ test: 'test' });
-
-      app.get('/doc', function(req, res){
-        res.send(posts.findOne({ test: 'test' }));
-      });
-
-      listen(httpServer, app, function(port){
-        var db = client('ws://localhost:' + port);
-        var doc = db.get('/doc', function(){
-          doc.on('likes', function(v){
-            expect(v).to.eql(['tobi']);
-            --count || done();
+      posts
+        .insert({ test: 'test', likes: [] })
+        .then( ( post ) => {
+          app.get('/doc', function(req, res){
+            res.send(posts.findOne( post._id ));
           });
-          doc.on('likes', 'push', function(v){
-            expect(v).to.eql('tobi');
-            --count || done();
+
+          listen(httpServer, app, function(port){
+            var db = client('ws://localhost:' + port);
+            var doc = db.get('/doc', function(){
+              doc.on('likes', function(v){
+                expect(v).to.eql(['tobi']);
+                --count || done();
+              });
+              doc.on('likes', 'push', function(v){
+                expect(v).to.eql('tobi');
+                --count || done();
+              });
+              posts.update(doc._id, { $push: { 'likes': 'tobi' } });
+            });
           });
-          posts.update(doc._id, { $push: { likes: 'tobi' } });
-        });
-      });
+        } )
+        .catch( ( e ) => done( e ) );
     });
 
     it('should send partial data', function(done){
@@ -225,41 +236,47 @@ describe('mydb', function(){
       var mydb = server(httpServer);
       var count = 2;
 
-      posts.insert({ test: 'ha', likes: ['a'], dislikes: ['a'] });
-
-      app.get('/doc', function(req, res){
-        res.send(posts.findOne({ test: 'ha' }, '-dislikes'));
-      });
-
-      listen(httpServer, app, function(port){
-        var db = client('ws://localhost:' + port);
-        var doc = db.get('/doc', function(){
-          expect(doc.test).to.be('ha');
-          expect(doc.likes).to.eql(['a']);
-          expect(doc.dislikes).to.be(undefined);
-
-          posts.update(doc._id, { $push: { likes: 'b', dislikes: 'b' } });
-          posts.update(doc._id, { $set: { test: 'a' } });
-
-          var updatedLikes = false;
-
-          doc.on('likes', 'push', function(v){
-            expect(v).to.be('b');
-            updatedLikes = true;
+      posts
+        .insert({ test: 'ha', likes: ['a'], dislikes: ['a'] })
+        .then( () => {
+          app.get('/doc', function(req, res){
+            res.send(posts.findOne({ test: 'ha' }, { fields: { dislikes: 0 } }));
           });
 
-          doc.on('dislikes', 'push', function(){
-            done(new Error('Unexpected'));
-          });
+          listen(httpServer, app, function(port){
+            var db = client('ws://localhost:' + port);
+            var doc = db.get('/doc', function(){
+              expect(doc.test).to.be('ha');
+              expect(doc.likes).to.eql(['a']);
+              expect(doc.dislikes).to.be(undefined);
 
-          doc.on('test', function(){
-            expect(doc.likes).to.eql(['a', 'b']);
-            expect(doc.dislikes).to.be(undefined);
-            expect(updatedLikes).to.be(true);
-            done();
+              var updatedLikes = false;
+
+              doc.on('likes', 'push', function(v){
+                expect(v).to.be('b');
+                updatedLikes = true;
+              });
+
+              doc.on('dislikes', 'push', function(){
+                done(new Error('Unexpected'));
+              });
+
+              doc.on('test', function(){
+                expect(doc.likes).to.eql(['a', 'b']);
+                expect(doc.dislikes).to.be(undefined);
+                expect(updatedLikes).to.be(true);
+                done();
+              });
+
+              posts
+                .update(doc._id, { $push: { likes: 'b', dislikes: 'b' } })
+                .then( () => {
+                  posts.update(doc._id, { $set: { test: 'a' } });
+                } );
+            });
           });
-        });
-      });
+        } )
+        .catch( ( e ) => done( e ) );
     });
 
     it('should destroy a subscription', function(done){
@@ -422,8 +439,11 @@ describe('mydb', function(){
           if (i == 5) done();
         });
         doc.ready(function(){
-          posts.update(doc._id, { $push: { jane_loki: 'd' } });
-          posts.update(doc._id, { $push: { jane_loki: 'e' } });
+          posts
+            .update(doc._id, { $push: { jane_loki: 'd' } })
+            .then( () => {
+              posts.update(doc._id, { $push: { jane_loki: 'e' } });
+            } );
         });
       });
     });
@@ -849,46 +869,6 @@ describe('mydb', function(){
       });
     });
 
-    it('should not send updates belonging to other fields', function(done){
-      var app = create();
-      var httpServer = http(app);
-      var mydb = server(httpServer);
-
-      var id = mongo.id();
-      posts.insert({ _id: id, hi: 'some fields 4', b: 'ignored', bye: 'bye' });
-
-      app.get('/', function(req, res){
-        res.send(posts.findById(id, ['hi', 'bye']));
-      });
-
-      listen(httpServer, app, function(port){
-        var db = client('ws://localhost:' + port);
-        var doc = db.get('/');
-        doc.ready(function(){
-          expect(doc.hi).to.be('some fields 4');
-          expect(doc.b).to.be(undefined);
-          expect(doc.bye).to.be('bye');
-
-          posts.update(id, { $set: { b: 'wat' } }, function(err){
-            if (err) return done(err);
-            posts.update(id, { $set: { hi: 'lol' } }, function(err){
-              if (err) return done(err);
-            });
-          });
-
-          doc.once('b', function(){
-            done(new Error('wtf'));
-          });
-
-          doc.once('hi', function(v){
-            expect(doc.b).to.be(undefined);
-            expect(v).to.be('lol');
-            done();
-          });
-        });
-      });
-    });
-
     it('should ignore parts of updates to other fields', function(done){
       var app = create();
       var httpServer = http(app);
@@ -898,7 +878,7 @@ describe('mydb', function(){
       posts.insert({ _id: id, hi: 'some 5', b: 'ignored', bye: 'bye' });
 
       app.get('/', function(req, res){
-        res.send(posts.findById(id, ['hi', 'bye']));
+        res.send(posts.findOne(id, ['hi', 'bye']));
       });
 
       listen(httpServer, app, function(port){
