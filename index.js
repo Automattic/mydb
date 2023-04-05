@@ -78,13 +78,6 @@ function Server(http, opts){
     opts.engine.allowEIO3 = true;
   }
 
-  opts.engine.cors = {
-    origin: '*',
-    methods: [ 'GET', 'POST', 'PUT', 'PATCH', 'OPTIONS', 'DELETE' ],
-    allowedHeaders: [ 'X-Requested-With', 'Content-Type', 'authorization' ],
-    credentials: true,
-  };
-
   // initialize engine server
   this.http = http;
   this.engine = engine.attach(http, opts.engine);
