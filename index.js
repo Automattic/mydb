@@ -81,7 +81,8 @@ function Server(http, opts){
   opts.engine.cors = {
     origin: '*',
     methods: [ 'GET', 'POST', 'PUT', 'PATCH', 'OPTIONS', 'DELETE' ],
-    allowedHeaders: [ 'X-Requested-With', 'Content-Type', 'authorization' ]
+    allowedHeaders: [ 'X-Requested-With', 'Content-Type', 'authorization' ],
+    credentials: true,
   };
 
   // initialize engine server
